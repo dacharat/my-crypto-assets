@@ -43,7 +43,6 @@ func (s *service) GetAccountByID(ctx context.Context, account string) (AccountRe
 		return AccountResponse{}, err
 	}
 
-	fmt.Printf("%v", response)
 	return response, nil
 }
 
@@ -62,6 +61,5 @@ func (s *service) GetAssetByID(ctx context.Context, asset int) (AssetResponse, e
 		return AssetResponse{}, err
 	}
 
-	fmt.Printf("%v", response)
 	return response, nil
 }

@@ -2,8 +2,11 @@ package httpclient
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"net/http/httputil"
 )
 
 type Client struct {
@@ -18,11 +21,14 @@ func NewClient() Client {
 
 func (c Client) Get(ctx context.Context, url string, header http.Header) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	debug(httputil.DumpRequestOut(req, true))
 	if err != nil {
 		return nil, err
 	}
 
-	return c.client.Do(req)
+	res, err := c.client.Do(req)
+	debug(httputil.DumpResponse(res, true))
+	return res, err
 }
 
 func (c *Client) Put(ctx context.Context, url string, header http.Header, body io.Reader) (*http.Response, error) {
@@ -36,4 +42,12 @@ func (c *Client) Put(ctx context.Context, url string, header http.Header, body i
 	// req.Header = header
 
 	return c.client.Do(req)
+}
+
+func debug(data []byte, err error) {
+	if err == nil {
+		fmt.Printf("\n%s", data)
+	} else {
+		log.Fatalf("\n%s", err)
+	}
 }
