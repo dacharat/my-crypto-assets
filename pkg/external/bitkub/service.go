@@ -81,22 +81,12 @@ func (s *service) GetTricker(ctx context.Context) (GetTrickerResponse, error) {
 	return response, nil
 }
 
-type orderBody struct {
-	Symbol    string  `json:"sym,omitempty"`
-	Amount    float64 `json:"amt,omitempty"` // for buy is amount of THB spend, for sell is amount of btc
-	Rate      float64 `json:"rat,omitempty"`
-	Type      string  `json:"typ,omitempty"`
-	Ts        int64   `json:"ts,omitempty"`
-	Signature string  `json:"sig,omitempty"`
-}
-
 func signRequest(body []byte) string {
-	signature := string(body)
 	h := hmac.New(sha256.New, []byte(config.Cfg.Bitkub.ApiSecret))
-	h.Write([]byte(signature))
+	h.Write(body)
 	hmacSigned := h.Sum(nil)
-	hmacSignedStr := hex.EncodeToString(hmacSigned)
-	return hmacSignedStr
+
+	return hex.EncodeToString(hmacSigned)
 }
 
 func generateHeader() http.Header {
@@ -104,5 +94,6 @@ func generateHeader() http.Header {
 	header.Set("X-BTK-APIKEY", config.Cfg.Bitkub.ApiKey)
 	header.Set("Content-Type", "application/json")
 	header.Set("Accept", "application/json")
+
 	return header
 }
