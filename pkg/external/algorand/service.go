@@ -40,7 +40,7 @@ func (s *service) GetAccountByID(ctx context.Context, account string) (AccountRe
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
-		return AccountResponse{}, err
+		return response, err
 	}
 
 	return response, nil
