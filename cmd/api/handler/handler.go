@@ -5,27 +5,36 @@ import (
 
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/service/algorandservice"
+	"github.com/dacharat/my-crypto-assets/pkg/service/bitkubservice"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	algoranService algorandservice.IAlgorandService
+	algoranSvc algorandservice.IAlgorandService
+	bitkubSvc  bitkubservice.IBitkubService
 }
 
-func NewHandler(algo algorandservice.IAlgorandService) Handler {
+func NewHandler(algo algorandservice.IAlgorandService, bitkubSvc bitkubservice.IBitkubService) Handler {
 	return Handler{
-		algoranService: algo,
+		algoranSvc: algo,
+		bitkubSvc:  bitkubSvc,
 	}
 }
 
 func (h Handler) GetAccountBalanceHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	res, err := h.algoranService.GetAccount(ctx, config.Cfg.User.AlgoAddress)
+	bitkub, err := h.bitkubSvc.GetWallet(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": res})
+	algo, err := h.algoranSvc.GetAccount(ctx, config.Cfg.User.AlgoAddress)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "ok", "algo": algo, "bitkub": bitkub})
 }

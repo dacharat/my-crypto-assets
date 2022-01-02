@@ -10,6 +10,7 @@ var Cfg config
 type config struct {
 	AlgorandClient Algorand
 	Coingecko      Coingecko
+	Bitkub         Bitkub
 	User           User
 }
 
@@ -23,6 +24,14 @@ type Algorand struct {
 type Coingecko struct {
 	Host           string `envconfig:"COINGECKGO_HOST" required:"true"`
 	GetSimplePrice string `envconfig:"COINGECKGO_GET_SIMPLE_PRICE" default:"/api/v3/simple/price"`
+}
+
+type Bitkub struct {
+	Host       string `envconfig:"BITKUB_HOST" required:"true"`
+	ApiKey     string `envconfig:"BITKUB_APIKEY" required:"true"`
+	ApiSecret  string `envconfig:"BITKUB_APISECRET" required:"true"`
+	GetWallet  string `envconfig:"BITKUB_GET_WALEET" default:"/api/market/wallet"`
+	GetTricker string `envconfig:"BITKUB_GET_TRICKER" default:"/api/market/ticker"`
 }
 
 type User struct {

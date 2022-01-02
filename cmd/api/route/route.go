@@ -5,8 +5,10 @@ import (
 
 	"github.com/dacharat/my-crypto-assets/cmd/api/handler"
 	"github.com/dacharat/my-crypto-assets/pkg/external/algorand"
+	"github.com/dacharat/my-crypto-assets/pkg/external/bitkub"
 	"github.com/dacharat/my-crypto-assets/pkg/external/coingecko"
 	"github.com/dacharat/my-crypto-assets/pkg/service/algorandservice"
+	"github.com/dacharat/my-crypto-assets/pkg/service/bitkubservice"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +17,13 @@ func NewRouter() *gin.Engine {
 
 	algoApi := algorand.NewAlgolandService()
 	priceApi := coingecko.NewCoingeckoService()
-	h := handler.NewHandler(algorandservice.NewService(algoApi, priceApi))
+	bitkubApi := bitkub.NewBitkubService()
+
+	algoSvc := algorandservice.NewService(algoApi, priceApi)
+	bitkubSvc := bitkubservice.NewService(bitkubApi)
+
+	h := handler.NewHandler(algoSvc, bitkubSvc)
+
 	route.GET("/health", func(c *gin.Context) {
 		c.Status(http.StatusNoContent)
 	})
