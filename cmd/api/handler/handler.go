@@ -7,6 +7,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/service/algorandservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/binanceservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/bitkubservice"
+	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/gin-gonic/gin"
 )
@@ -15,13 +16,15 @@ type Handler struct {
 	algoranSvc algorandservice.IAlgorandService
 	bitkubSvc  bitkubservice.IBitkubService
 	binanceSvc binanceservice.IBinanceService
+	lineSvc    lineservice.ILineService
 }
 
-func NewHandler(algo algorandservice.IAlgorandService, bitkubSvc bitkubservice.IBitkubService, binanceSvc binanceservice.IBinanceService) Handler {
+func NewHandler(algo algorandservice.IAlgorandService, bitkubSvc bitkubservice.IBitkubService, binanceSvc binanceservice.IBinanceService, lineSvc lineservice.ILineService) Handler {
 	return Handler{
 		algoranSvc: algo,
 		bitkubSvc:  bitkubSvc,
 		binanceSvc: binanceSvc,
+		lineSvc:    lineSvc,
 	}
 }
 
@@ -46,6 +49,11 @@ func (h Handler) GetAccountBalanceHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": data})
+}
+
+func (h Handler) LineCallbackHandler(c *gin.Context) {
+	h.lineSvc.SendFlex(c.Request.Context())
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 type AccountErr struct {

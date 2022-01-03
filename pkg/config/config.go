@@ -12,6 +12,7 @@ type config struct {
 	Coingecko      Coingecko
 	Bitkub         Bitkub
 	Binance        Binance
+	Line           Line
 	User           User
 }
 
@@ -42,6 +43,12 @@ type Binance struct {
 	GetAccount string `envconfig:"BINANCE_GET_ACCOUNT" default:"/api/v3/account"`
 	GetSaving  string `envconfig:"BINANCE_GET_SAVING" default:"/sapi/v1/lending/union/account"`
 	GetTricker string `envconfig:"BINANCE_GET_TRICKER" default:"/api/v3/ticker/price"`
+}
+
+type Line struct {
+	UserID             string `envconfig:"LINE_USER_ID" required:"true"`
+	ChannelSecret      string `envconfig:"LINE_CHANNEL_SECRET" required:"true"`
+	ChannelAccessToken string `envconfig:"LINE_CHANNEL_ACCESS_TOKEN" required:"true"`
 }
 
 type User struct {
