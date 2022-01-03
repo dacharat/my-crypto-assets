@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/dacharat/my-crypto-assets/pkg/external/binance"
+	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/dacharat/my-crypto-assets/pkg/util/stringutil"
 )
 
@@ -15,7 +16,7 @@ var (
 )
 
 type IBinanceService interface {
-	GetAccount(ctx context.Context) (Account, error)
+	GetAccount(ctx context.Context) (shared.Account, error)
 }
 
 type service struct {
@@ -28,17 +29,17 @@ func NewService(api binance.IBinance) IBinanceService {
 	}
 }
 
-func (s *service) GetAccount(ctx context.Context) (Account, error) {
+func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
 	res, err := s.binanceApi.GetAccount(ctx)
 	if err != nil {
-		return Account{}, err
+		return shared.Account{}, err
 	}
 	tricker, err := s.binanceApi.GetTricker(ctx)
 	if err != nil {
-		return Account{}, err
+		return shared.Account{}, err
 	}
 
-	assets := make(Assets, 0, len(res.Balances))
+	assets := make(shared.Assets, 0, len(res.Balances))
 	for _, balance := range res.Balances {
 		free, err := strconv.ParseFloat(balance.Free, 64)
 		if err != nil {
@@ -64,14 +65,14 @@ func (s *service) GetAccount(ctx context.Context) (Account, error) {
 			price = amount * tricker[fmt.Sprintf("%sUSDT", balance.Asset)]
 		}
 
-		assets = append(assets, &Asset{
+		assets = append(assets, &shared.Asset{
 			Name:   balance.Asset,
 			Amount: amount,
 			Price:  price,
 		})
 	}
 
-	return Account{
+	return shared.Account{
 		Assets:     assets,
 		TotalPrice: assets.TotalPrice(),
 	}, nil

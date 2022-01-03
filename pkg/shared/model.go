@@ -1,18 +1,18 @@
-package algorandservice
+package shared
 
 type Account struct {
-	Address    string `json:"address"`
-	Assets     Assets `json:"assets"`
-	TotalPirce string `json:"totalPrice"`
+	Address    string  `json:"address,omitempty"`
+	Assets     Assets  `json:"assets"`
+	TotalPrice float64 `json:"totalPrice"`
 }
 
-type Assets []Asset
+type Assets []*Asset
 type Asset struct {
-	Amount        float64 `json:"amount"`
 	ID            int     `json:"id,omitempty"`
+	Amount        float64 `json:"amount"`
 	Name          string  `json:"name"`
 	Price         float64 `json:"price"`
-	FormatedPrice string  `json:"formatedPrice"`
+	FormatedPrice string  `json:"formatedPrice,omitempty"`
 }
 
 func (a Assets) TotalPrice() float64 {

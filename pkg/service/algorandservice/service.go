@@ -6,12 +6,13 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/external/algorand"
 	"github.com/dacharat/my-crypto-assets/pkg/external/coingecko"
+	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/dacharat/my-crypto-assets/pkg/util/number"
 	"github.com/dacharat/my-crypto-assets/pkg/util/price"
 )
 
 type IAlgorandService interface {
-	GetAccount(ctx context.Context, account string) (Account, error)
+	GetAccount(ctx context.Context, account string) (shared.Account, error)
 }
 
 type service struct {
@@ -26,26 +27,26 @@ func NewService(api algorand.IAlgoland, price coingecko.ICoingecko) IAlgorandSer
 	}
 }
 
-func (s *service) GetAccount(ctx context.Context, account string) (Account, error) {
+func (s *service) GetAccount(ctx context.Context, account string) (shared.Account, error) {
 	res, err := s.api.GetAccountByID(ctx, account)
 	if err != nil {
-		return Account{}, err
+		return shared.Account{}, err
 	}
 
 	return s.mapToAccount(ctx, res), nil
 }
 
-func (s *service) mapToAccount(ctx context.Context, res algorand.AccountResponse) Account {
+func (s *service) mapToAccount(ctx context.Context, res algorand.AccountResponse) shared.Account {
 	priceRes, _ := s.price.GetPrice(ctx, coingecko.Algo)
 
 	resAcount := res.Account
-	account := Account{
+	account := shared.Account{
 		Address: resAcount.Address,
 	}
 
 	algoAmount := toAmount(resAcount.Amount)
 	algoPrice := algoAmount * priceRes.Price(coingecko.AlgoCoinID["ALGO"])
-	algo := Asset{
+	algo := &shared.Asset{
 		Amount:        algoAmount,
 		ID:            0,
 		Name:          "ALGO",
@@ -53,7 +54,7 @@ func (s *service) mapToAccount(ctx context.Context, res algorand.AccountResponse
 		FormatedPrice: price.Dollar(algoPrice),
 	}
 
-	assets := make([]Asset, 0, len(resAcount.Assets))
+	assets := make(shared.Assets, 0, len(resAcount.Assets))
 	for _, asset := range resAcount.Assets {
 		if asset.IsFrozen {
 			continue
@@ -63,7 +64,7 @@ func (s *service) mapToAccount(ctx context.Context, res algorand.AccountResponse
 
 		assetAmount := toAmount(asset.Amount)
 		p := assetAmount * priceRes.Price(coingecko.AlgoCoinID[detail.Asset.Params.Name])
-		assets = append(assets, Asset{
+		assets = append(assets, &shared.Asset{
 			Amount:        assetAmount,
 			ID:            asset.AssetID,
 			Name:          detail.Asset.Params.Name,
@@ -72,8 +73,8 @@ func (s *service) mapToAccount(ctx context.Context, res algorand.AccountResponse
 		})
 	}
 
-	account.Assets = append([]Asset{algo}, assets...)
-	account.TotalPirce = price.Dollar(account.Assets.TotalPrice())
+	account.Assets = append(shared.Assets{algo}, assets...)
+	account.TotalPrice = account.Assets.TotalPrice()
 
 	return account
 }

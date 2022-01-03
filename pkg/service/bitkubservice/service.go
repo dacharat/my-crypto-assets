@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/dacharat/my-crypto-assets/pkg/external/bitkub"
+	"github.com/dacharat/my-crypto-assets/pkg/shared"
 )
 
 type IBitkubService interface {
-	GetAccount(ctx context.Context) (Account, error)
+	GetAccount(ctx context.Context) (shared.Account, error)
 }
 
 type service struct {
@@ -21,16 +22,16 @@ func NewService(api bitkub.IBitkub) IBitkubService {
 	}
 }
 
-func (s *service) GetAccount(ctx context.Context) (Account, error) {
+func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
 	res, err := s.bitkubApi.GetWallet(ctx)
 	if err != nil {
-		return Account{}, err
+		return shared.Account{}, err
 	}
 
 	assets := mapToAssets(res.Result)
 	tricker, err := s.bitkubApi.GetTricker(ctx)
 	if err != nil {
-		return Account{}, err
+		return shared.Account{}, err
 	}
 
 	for _, asset := range assets {
@@ -44,20 +45,20 @@ func (s *service) GetAccount(ctx context.Context) (Account, error) {
 		asset.Price = asset.Amount * t.Last
 	}
 
-	return Account{
+	return shared.Account{
 		Assets:     assets,
 		TotalPrice: assets.TotalPrice(),
 	}, nil
 }
 
-func mapToAssets(result map[string]float64) Assets {
-	assets := make(Assets, 0, len(result))
+func mapToAssets(result map[string]float64) shared.Assets {
+	assets := make(shared.Assets, 0, len(result))
 	for k, v := range result {
 		if v == 0 {
 			continue
 		}
 
-		assets = append(assets, &Asset{
+		assets = append(assets, &shared.Asset{
 			Name:   k,
 			Amount: v,
 		})
