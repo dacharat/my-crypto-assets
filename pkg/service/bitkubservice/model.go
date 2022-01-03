@@ -1,6 +1,6 @@
 package bitkubservice
 
-type Wallet struct {
+type Account struct {
 	Assets     Assets  `json:"assets"`
 	TotalPrice float64 `json:"totalPrice"`
 }

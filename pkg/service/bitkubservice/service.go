@@ -8,7 +8,7 @@ import (
 )
 
 type IBitkubService interface {
-	GetWallet(ctx context.Context) (Wallet, error)
+	GetAccount(ctx context.Context) (Account, error)
 }
 
 type service struct {
@@ -21,16 +21,16 @@ func NewService(api bitkub.IBitkub) IBitkubService {
 	}
 }
 
-func (s *service) GetWallet(ctx context.Context) (Wallet, error) {
+func (s *service) GetAccount(ctx context.Context) (Account, error) {
 	res, err := s.bitkubApi.GetWallet(ctx)
 	if err != nil {
-		return Wallet{}, err
+		return Account{}, err
 	}
 
 	assets := mapToAssets(res.Result)
 	tricker, err := s.bitkubApi.GetTricker(ctx)
 	if err != nil {
-		return Wallet{}, err
+		return Account{}, err
 	}
 
 	for _, asset := range assets {
@@ -44,7 +44,7 @@ func (s *service) GetWallet(ctx context.Context) (Wallet, error) {
 		asset.Price = asset.Amount * t.Last
 	}
 
-	return Wallet{
+	return Account{
 		Assets:     assets,
 		TotalPrice: assets.TotalPrice(),
 	}, nil

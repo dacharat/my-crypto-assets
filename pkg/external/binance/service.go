@@ -16,6 +16,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/util/httpclient"
 )
 
+// NOTE: binance doesn't support Staking account yet.
 type IBinance interface {
 	GetAccount(ctx context.Context) (GetAccountResponse, error)
 	GetSavingBalance(ctx context.Context) (GetSavingBalanceResponse, error)

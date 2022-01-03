@@ -33,7 +33,7 @@ func (h Handler) GetAccountBalanceHandler(c *gin.Context) {
 		return
 	}
 
-	bitkub, err := h.bitkubSvc.GetWallet(ctx)
+	bitkub, err := h.bitkubSvc.GetAccount(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return

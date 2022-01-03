@@ -20,23 +20,6 @@ type Balance struct {
 	Locked string `json:"locked"`
 }
 
-type GetAccountSnapshot struct {
-	Code        int    `json:"code"`
-	Msg         string `json:"msg"`
-	SnapshotVos []struct {
-		Type       string `json:"type"`
-		UpdateTime int64  `json:"updateTime"`
-		Data       struct {
-			TotalAssetOfBtc string `json:"totalAssetOfBtc"`
-			Balances        []struct {
-				Asset  string `json:"asset"`
-				Free   string `json:"free"`
-				Locked string `json:"locked"`
-			} `json:"balances"`
-		} `json:"data"`
-	} `json:"snapshotVos"`
-}
-
 type GetSavingBalanceResponse struct {
 	TotalAmountInBTC       string `json:"totalAmountInBTC"`
 	TotalAmountInUSDT      string `json:"totalAmountInUSDT"`
