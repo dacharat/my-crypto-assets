@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 
-	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/service/algorandservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/binanceservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/bitkubservice"
+	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,23 +28,35 @@ func NewHandler(algo algorandservice.IAlgorandService, bitkubSvc bitkubservice.I
 func (h Handler) GetAccountBalanceHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	binance, err := h.binanceSvc.GetAccount(ctx)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
+	wow := make(chan AccountErr, 3)
+	defer close(wow)
+	go channelFunc(ctx, wow, h.binanceSvc.GetAccount)
+	go channelFunc(ctx, wow, h.bitkubSvc.GetAccount)
+	go channelFunc(ctx, wow, h.algoranSvc.GetAccount)
+
+	var data []shared.Account
+	for i := 0; i < 3; i++ {
+		result := <-wow
+		if result.Err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Err})
+			return
+
+		}
+		data = append(data, result.Account)
 	}
 
-	bitkub, err := h.bitkubSvc.GetAccount(ctx)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
+	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": data})
+}
 
-	algo, err := h.algoranSvc.GetAccount(ctx, config.Cfg.User.AlgoAddress)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
+type AccountErr struct {
+	Account shared.Account
+	Err     error
+}
 
-	c.JSON(http.StatusOK, gin.H{"message": "ok", "algo": algo, "bitkub": bitkub, "binance": binance})
+func channelFunc(ctx context.Context, c chan AccountErr, fun func(context.Context) (shared.Account, error)) {
+	account, err := fun(ctx)
+	c <- AccountErr{
+		Account: account,
+		Err:     err,
+	}
 }

@@ -73,6 +73,7 @@ func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
 	}
 
 	return shared.Account{
+		Platform:   shared.Binance,
 		Assets:     assets,
 		TotalPrice: assets.TotalPrice(),
 	}, nil

@@ -12,7 +12,7 @@ import (
 )
 
 type IAlgorandService interface {
-	GetAccount(ctx context.Context, account string) (shared.Account, error)
+	GetAccount(ctx context.Context) (shared.Account, error)
 }
 
 type service struct {
@@ -27,7 +27,8 @@ func NewService(api algorand.IAlgoland, price coingecko.ICoingecko) IAlgorandSer
 	}
 }
 
-func (s *service) GetAccount(ctx context.Context, account string) (shared.Account, error) {
+func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
+	account := config.Cfg.User.AlgoAddress
 	res, err := s.api.GetAccountByID(ctx, account)
 	if err != nil {
 		return shared.Account{}, err
@@ -41,7 +42,8 @@ func (s *service) mapToAccount(ctx context.Context, res algorand.AccountResponse
 
 	resAcount := res.Account
 	account := shared.Account{
-		Address: resAcount.Address,
+		Platform: shared.Algorand,
+		Address:  resAcount.Address,
 	}
 
 	algoAmount := toAmount(resAcount.Amount)

@@ -8,6 +8,12 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 )
 
+const (
+	thbToUsdPair = "THB_USDT"
+	thbCurrency  = "THB"
+	tokenPair    = "THB_%s"
+)
+
 type IBitkubService interface {
 	GetAccount(ctx context.Context) (shared.Account, error)
 }
@@ -27,25 +33,27 @@ func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
 	if err != nil {
 		return shared.Account{}, err
 	}
-
-	assets := mapToAssets(res.Result)
 	tricker, err := s.bitkubApi.GetTricker(ctx)
 	if err != nil {
 		return shared.Account{}, err
 	}
 
+	usdRate := tricker[thbToUsdPair].Last
+
+	assets := mapToAssets(res.Result)
 	for _, asset := range assets {
-		if asset.Name == "THB" {
-			asset.Price = asset.Amount
+		if asset.Name == thbCurrency {
+			asset.Price = toUsd(asset.Amount, usdRate)
 			continue
 		}
 
-		key := fmt.Sprintf("THB_%s", asset.Name)
+		key := fmt.Sprintf(tokenPair, asset.Name)
 		t := tricker[key]
-		asset.Price = asset.Amount * t.Last
+		asset.Price = toUsd(asset.Amount*t.Last, usdRate)
 	}
 
 	return shared.Account{
+		Platform:   shared.Bitkub,
 		Assets:     assets,
 		TotalPrice: assets.TotalPrice(),
 	}, nil
@@ -65,4 +73,8 @@ func mapToAssets(result map[string]float64) shared.Assets {
 	}
 
 	return assets
+}
+
+func toUsd(thb float64, rate float64) float64 {
+	return thb / rate
 }

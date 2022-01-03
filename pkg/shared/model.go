@@ -1,9 +1,18 @@
 package shared
 
+const (
+	Binance  Platform = "Binance"
+	Bitkub   Platform = "Bitkub"
+	Algorand Platform = "Algorand"
+)
+
+type Platform string
+
 type Account struct {
-	Address    string  `json:"address,omitempty"`
-	Assets     Assets  `json:"assets"`
-	TotalPrice float64 `json:"totalPrice"`
+	Platform   Platform `json:"platform"`
+	Address    string   `json:"address,omitempty"`
+	Assets     Assets   `json:"assets"`
+	TotalPrice float64  `json:"totalPrice"`
 }
 
 type Assets []*Asset
