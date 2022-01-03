@@ -8,7 +8,7 @@ import (
 )
 
 type ILine interface {
-	SendMessage(ctx context.Context) error
+	SendFlexMessage(ctx context.Context, container *linebot.BubbleContainer) error
 }
 
 type service struct {
@@ -21,35 +21,7 @@ func NewLineService(client *linebot.Client) ILine {
 	}
 }
 
-func (s *service) SendMessage(ctx context.Context) error {
-	container := &linebot.BubbleContainer{
-		Type: linebot.FlexContainerTypeBubble,
-		Body: &linebot.BoxComponent{
-			Type:   linebot.FlexComponentTypeBox,
-			Layout: linebot.FlexBoxLayoutTypeVertical,
-			Background: &linebot.BoxBackground{
-				Type:       linebot.FlexBoxBackgroundTypeLinearGradient,
-				Angle:      "90deg",
-				StartColor: "#29323c",
-				EndColor:   "#37434f",
-			},
-			Contents: []linebot.FlexComponent{
-				&linebot.BoxComponent{
-					Type:     linebot.FlexComponentTypeText,
-					Layout:   linebot.FlexBoxLayoutTypeVertical,
-					Contents: []linebot.FlexComponent{},
-				},
-				&linebot.SeparatorComponent{
-					Margin: "8px",
-				},
-				&linebot.TextComponent{
-					Type: linebot.FlexComponentTypeText,
-					Text: "World!",
-				},
-			},
-		},
-	}
-
+func (s *service) SendFlexMessage(ctx context.Context, container *linebot.BubbleContainer) error {
 	_, err := s.client.PushMessage(config.Cfg.Line.UserID, linebot.NewFlexMessage("test", container)).WithContext(ctx).Do()
 	if err != nil {
 		return err

@@ -33,6 +33,13 @@ func (h Handler) GetAccountBalanceHandler(c *gin.Context) {
 }
 
 func (h Handler) LineCallbackHandler(c *gin.Context) {
-	h.lineSvc.SendFlex(c.Request.Context())
+	ctx := c.Request.Context()
+
+	data, err := h.assetsSvc.GetAllAssets(ctx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	h.lineSvc.SendFlex(c.Request.Context(), data)
 	c.JSON(http.StatusOK, gin.H{})
 }
