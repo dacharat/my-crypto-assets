@@ -11,25 +11,25 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/util/price"
 )
 
-type IAlgorandService interface {
-	GetAccount(ctx context.Context) (shared.Account, error)
-}
-
 type service struct {
 	api   algorand.IAlgoland
 	price coingecko.ICoingecko
 }
 
-func NewService(api algorand.IAlgoland, price coingecko.ICoingecko) IAlgorandService {
+func NewService(api algorand.IAlgoland, price coingecko.ICoingecko) shared.IAssetsService {
 	return &service{
 		api:   api,
 		price: price,
 	}
 }
 
+func (s *service) Type() string {
+	return string(shared.Algorand)
+}
+
 func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
 	account := config.Cfg.User.AlgoAddress
-	res, err := s.api.GetAccountByID(ctx, account)
+	res, err := s.api.GetAlgodAccountByID(ctx, account)
 	if err != nil {
 		return shared.Account{}, err
 	}
@@ -37,10 +37,10 @@ func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
 	return s.mapToAccount(ctx, res), nil
 }
 
-func (s *service) mapToAccount(ctx context.Context, res algorand.AccountResponse) shared.Account {
+func (s *service) mapToAccount(ctx context.Context, resAcount algorand.Account) shared.Account {
 	priceRes, _ := s.price.GetPrice(ctx, coingecko.Algo)
 
-	resAcount := res.Account
+	// resAcount := res.Account
 	account := shared.Account{
 		Platform: shared.Algorand,
 		Address:  resAcount.Address,

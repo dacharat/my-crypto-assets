@@ -14,6 +14,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/service/binanceservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/bitkubservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice"
+	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice"
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
@@ -35,9 +36,10 @@ func NewRouter() *gin.Engine {
 	algoSvc := algorandservice.NewService(algoApi, priceApi)
 	bitkubSvc := bitkubservice.NewService(bitkubApi)
 	binanceSvc := binanceservice.NewService(binancApi)
+	myAssetsSvc := myassetsservice.NewHandler(algoSvc, bitkubSvc, binanceSvc)
 	lineSvc := lineservice.NewLineService(lineApi)
 
-	h := handler.NewHandler(algoSvc, bitkubSvc, binanceSvc, lineSvc)
+	h := handler.NewHandler(myAssetsSvc, lineSvc)
 
 	route.GET("/health", func(c *gin.Context) {
 		c.Status(http.StatusNoContent)

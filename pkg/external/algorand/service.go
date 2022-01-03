@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/util/httpclient"
 )
 
 type IAlgoland interface {
-	GetAccountByID(ctx context.Context, account string) (AccountResponse, error)
+	GetAlgodAccountByID(ctx context.Context, account string) (Account, error)
 	GetAssetByID(ctx context.Context, asset int) (AssetResponse, error)
 }
 
@@ -24,19 +25,27 @@ func NewAlgolandService() IAlgoland {
 	}
 }
 
-func (s *service) GetAccountByID(ctx context.Context, account string) (AccountResponse, error) {
-	path := fmt.Sprintf(config.Cfg.AlgorandClient.GetAccountPath, account)
-	url := fmt.Sprintf("%s%s", config.Cfg.AlgorandClient.Host, path)
-
-	resp, err := s.client.Get(ctx, url, nil)
-	if err != nil {
-		return AccountResponse{}, err
+func (s *service) GetAlgodAccountByID(ctx context.Context, account string) (Account, error) {
+	// fallback to free api
+	if config.Cfg.AlgorandClient.UseFreeApi {
+		res, err := s.getAccountByID(ctx, account)
+		return res.Account, err
 	}
 
-	// if resp.StatusCode != http.StatusOK {
-	// }
+	path := fmt.Sprintf(config.Cfg.AlgorandClient.GetAccountPath, account)
+	url := fmt.Sprintf("%s%s", config.Cfg.AlgorandClient.AlgodHost, path)
 
-	var response AccountResponse
+	header := http.Header{}
+	if config.Cfg.AlgorandClient.ApiKey != "" {
+		header.Set("x-api-key", config.Cfg.AlgorandClient.ApiKey)
+	}
+
+	resp, err := s.client.Get(ctx, url, header)
+	if err != nil {
+		return Account{}, err
+	}
+
+	var response Account
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
@@ -59,6 +68,28 @@ func (s *service) GetAssetByID(ctx context.Context, asset int) (AssetResponse, e
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		return AssetResponse{}, err
+	}
+
+	return response, nil
+}
+
+func (s *service) getAccountByID(ctx context.Context, account string) (AccountResponse, error) {
+	path := fmt.Sprintf(config.Cfg.AlgorandClient.GetAccountPath, account)
+	url := fmt.Sprintf("%s%s", config.Cfg.AlgorandClient.Host, path)
+
+	resp, err := s.client.Get(ctx, url, nil)
+	if err != nil {
+		return AccountResponse{}, err
+	}
+
+	// if resp.StatusCode != http.StatusOK {
+	// }
+
+	var response AccountResponse
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return response, err
 	}
 
 	return response, nil

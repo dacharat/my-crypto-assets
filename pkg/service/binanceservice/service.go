@@ -15,18 +15,18 @@ var (
 	lockedPrefix = "LD"                             // saving account token will start with LD(lending)
 )
 
-type IBinanceService interface {
-	GetAccount(ctx context.Context) (shared.Account, error)
-}
-
 type service struct {
 	binanceApi binance.IBinance
 }
 
-func NewService(api binance.IBinance) IBinanceService {
+func NewService(api binance.IBinance) shared.IAssetsService {
 	return &service{
 		binanceApi: api,
 	}
+}
+
+func (s *service) Type() string {
+	return string(shared.Binance)
 }
 
 func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {

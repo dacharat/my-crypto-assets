@@ -17,10 +17,15 @@ type config struct {
 }
 
 type Algorand struct {
-	Host           string `envconfig:"ALGORAND_HOST" required:"true"`
+	Host         string `envconfig:"ALGORAND_HOST" required:"true"`
+	GetAssetPath string `envconfig:"ALGORAND_GET_ASSET_PATH" default:"/v2/assets/%d"`
+
+	AlgodHost      string `envconfig:"ALGORAND_ALGOD_HOST" required:"true"`
+	ApiKey         string `envconfig:"ALGORAND_ALGOD_APILEY"`
 	GetAccountPath string `envconfig:"ALGORAND_GET_ACCOUNT_PATH" default:"/v2/accounts/%s"`
-	GetAssetPath   string `envconfig:"ALGORAND_GET_ASSET_PATH" default:"/v2/assets/%d"`
-	DefaultDecimal int    `envconfig:"DEFAULT_DECIMAL" default:"6"`
+
+	DefaultDecimal int  `envconfig:"ALGORAND_DEFAULT_DECIMAL" default:"6"`
+	UseFreeApi     bool `envconfig:"ALGORAND_USE_FREE_API" default:"false"`
 }
 
 type Coingecko struct {

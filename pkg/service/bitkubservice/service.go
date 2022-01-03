@@ -14,18 +14,18 @@ const (
 	tokenPair    = "THB_%s"
 )
 
-type IBitkubService interface {
-	GetAccount(ctx context.Context) (shared.Account, error)
-}
-
 type service struct {
 	bitkubApi bitkub.IBitkub
 }
 
-func NewService(api bitkub.IBitkub) IBitkubService {
+func NewService(api bitkub.IBitkub) shared.IAssetsService {
 	return &service{
 		bitkubApi: api,
 	}
+}
+
+func (s *service) Type() string {
+	return string(shared.Bitkub)
 }
 
 func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
