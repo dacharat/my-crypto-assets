@@ -26,6 +26,10 @@ func (c Client) Get(ctx context.Context, url string, header http.Header) (*http.
 		return nil, err
 	}
 
+	if header != nil {
+		req.Header = header
+	}
+
 	res, err := c.client.Do(req)
 	debug(httputil.DumpResponse(res, true))
 	return res, err

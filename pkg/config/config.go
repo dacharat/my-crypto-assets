@@ -11,6 +11,7 @@ type config struct {
 	AlgorandClient Algorand
 	Coingecko      Coingecko
 	Bitkub         Bitkub
+	Binance        Binance
 	User           User
 }
 
@@ -30,8 +31,17 @@ type Bitkub struct {
 	Host       string `envconfig:"BITKUB_HOST" required:"true"`
 	ApiKey     string `envconfig:"BITKUB_APIKEY" required:"true"`
 	ApiSecret  string `envconfig:"BITKUB_APISECRET" required:"true"`
-	GetWallet  string `envconfig:"BITKUB_GET_WALEET" default:"/api/market/wallet"`
+	GetWallet  string `envconfig:"BITKUB_GET_WALLET" default:"/api/market/wallet"`
 	GetTricker string `envconfig:"BITKUB_GET_TRICKER" default:"/api/market/ticker"`
+}
+
+type Binance struct {
+	Host       string `envconfig:"BINANCE_HOST" required:"true"`
+	ApiKey     string `envconfig:"BINANCE_APIKEY" required:"true"`
+	ApiSecret  string `envconfig:"BINANCE_APISECRET" required:"true"`
+	GetAccount string `envconfig:"BINANCE_GET_ACCOUNT" default:"/api/v3/account"`
+	GetSaving  string `envconfig:"BINANCE_GET_SAVING" default:"/sapi/v1/lending/union/account"`
+	GetTricker string `envconfig:"BINANCE_GET_TRICKER" default:"/api/v3/ticker/price"`
 }
 
 type User struct {
