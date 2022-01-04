@@ -47,6 +47,11 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 		return
 	}
 
+	if len(event) == 0 {
+		c.JSON(http.StatusOK, gin.H{})
+		return
+	}
+
 	token := event[0].ReplyToken
 	if token != config.Cfg.Line.UserID {
 		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("invalid user")})
