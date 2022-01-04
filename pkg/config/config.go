@@ -1,6 +1,8 @@
 package config
 
 import (
+	"os"
+
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -62,9 +64,11 @@ type User struct {
 }
 
 func NewConfig() {
-	err := godotenv.Load()
-	if err != nil {
-		panic(err)
+	if os.Getenv("ENV") == "dev" {
+		err := godotenv.Load()
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	envconfig.MustProcess("", &Cfg)
