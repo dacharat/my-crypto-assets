@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -54,6 +55,8 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 
 	token := event[0].ReplyToken
 	if token != config.Cfg.Line.UserID {
+		b, _ := json.Marshal(event)
+		h.lineSvc.ReplyTextMessage(ctx, token, string(b))
 		c.JSON(http.StatusForbidden, gin.H{"error": errors.New("invalid user")})
 		return
 	}

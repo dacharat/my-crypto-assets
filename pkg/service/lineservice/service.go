@@ -12,6 +12,7 @@ import (
 
 type ILineService interface {
 	SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error
+	ReplyTextMessage(ctx context.Context, token string, message string) error
 	PushMessage(ctx context.Context, accounts []shared.Account) error
 }
 
@@ -27,6 +28,10 @@ func NewLineService(lineApi line.ILine) ILineService {
 
 func (s *service) SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error {
 	return s.lineApi.SendFlexMessage(ctx, token, createComponent(accounts))
+}
+
+func (s *service) ReplyTextMessage(ctx context.Context, token string, message string) error {
+	return s.lineApi.ReplyTextMessage(ctx, token, message)
 }
 
 func (s *service) PushMessage(ctx context.Context, accounts []shared.Account) error {

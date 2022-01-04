@@ -9,6 +9,7 @@ import (
 
 type ILine interface {
 	SendFlexMessage(ctx context.Context, token string, container *linebot.BubbleContainer) error
+	ReplyTextMessage(ctx context.Context, token string, message string) error
 	PushMessage(ctx context.Context, container *linebot.BubbleContainer) error
 }
 
@@ -24,6 +25,15 @@ func NewLineService(client *linebot.Client) ILine {
 
 func (s *service) SendFlexMessage(ctx context.Context, token string, container *linebot.BubbleContainer) error {
 	_, err := s.client.ReplyMessage(token, linebot.NewFlexMessage("", container)).WithContext(ctx).Do()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *service) ReplyTextMessage(ctx context.Context, token string, message string) error {
+	_, err := s.client.ReplyMessage(token, linebot.NewTextMessage(message)).WithContext(ctx).Do()
 	if err != nil {
 		return err
 	}
