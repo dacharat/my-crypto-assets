@@ -44,9 +44,15 @@ func createComponent(accounts []shared.Account) *linebot.BubbleContainer {
 			},
 		},
 	}
+
+	var totalPrice float64
 	for _, account := range accounts {
 		container.Body.Contents = append(container.Body.Contents, createAccountComponent(account))
+		totalPrice += account.TotalPrice
 	}
+
+	container.Body.Contents = append(container.Body.Contents, createTotalAssetsComponent(totalPrice))
+
 	return container
 }
 
@@ -71,6 +77,38 @@ func createAccountComponent(account shared.Account) *linebot.BoxComponent {
 					&linebot.TextComponent{
 						Type:   linebot.FlexComponentTypeText,
 						Text:   price.Dollar(account.TotalPrice),
+						Flex:   pointer.NewInt(4),
+						Color:  "#436AA9",
+						Weight: linebot.FlexTextWeightTypeBold,
+						Align:  linebot.FlexComponentAlignTypeEnd,
+					},
+				},
+			},
+		},
+	}
+}
+
+func createTotalAssetsComponent(totalPrice float64) *linebot.BoxComponent {
+	return &linebot.BoxComponent{
+		Type:   linebot.FlexComponentTypeText,
+		Layout: linebot.FlexBoxLayoutTypeVertical,
+		Contents: []linebot.FlexComponent{
+			&linebot.BoxComponent{
+				Type:       linebot.FlexComponentTypeText,
+				Layout:     linebot.FlexBoxLayoutTypeHorizontal,
+				PaddingTop: "8px",
+				Contents: []linebot.FlexComponent{
+					&linebot.TextComponent{
+						Type:   linebot.FlexComponentTypeText,
+						Text:   "Total",
+						Flex:   pointer.NewInt(8),
+						Color:  "#436AA9",
+						Weight: linebot.FlexTextWeightTypeBold,
+						Align:  linebot.FlexComponentAlignTypeStart,
+					},
+					&linebot.TextComponent{
+						Type:   linebot.FlexComponentTypeText,
+						Text:   price.Dollar(totalPrice),
 						Flex:   pointer.NewInt(4),
 						Color:  "#436AA9",
 						Weight: linebot.FlexTextWeightTypeBold,
