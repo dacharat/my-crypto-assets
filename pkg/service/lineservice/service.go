@@ -2,7 +2,6 @@ package lineservice
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/dacharat/my-crypto-assets/pkg/external/line"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
@@ -12,7 +11,8 @@ import (
 )
 
 type ILineService interface {
-	SendFlex(ctx context.Context, accounts []shared.Account)
+	SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error
+	PushMessage(ctx context.Context, accounts []shared.Account) error
 }
 
 type service struct {
@@ -25,9 +25,12 @@ func NewLineService(lineApi line.ILine) ILineService {
 	}
 }
 
-func (s *service) SendFlex(ctx context.Context, accounts []shared.Account) {
-	err := s.lineApi.SendFlexMessage(ctx, createComponent(accounts))
-	fmt.Println("=================>", err)
+func (s *service) SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error {
+	return s.lineApi.SendFlexMessage(ctx, token, createComponent(accounts))
+}
+
+func (s *service) PushMessage(ctx context.Context, accounts []shared.Account) error {
+	return s.lineApi.PushMessage(ctx, createComponent(accounts))
 }
 
 func createComponent(accounts []shared.Account) *linebot.BubbleContainer {

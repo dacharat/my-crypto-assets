@@ -39,14 +39,15 @@ func NewRouter() *gin.Engine {
 	myAssetsSvc := myassetsservice.NewHandler(algoSvc, bitkubSvc, binanceSvc)
 	lineSvc := lineservice.NewLineService(lineApi)
 
-	h := handler.NewHandler(myAssetsSvc, lineSvc)
+	h := handler.NewHandler(myAssetsSvc, lineSvc, client.ParseRequest)
 
 	route.GET("/health", func(c *gin.Context) {
 		c.Status(http.StatusNoContent)
 	})
 
-	route.GET("/test", h.GetAccountBalanceHandler)
+	route.GET("/test", DevMode(), h.GetAccountBalanceHandler)
 	route.GET("/linebot", h.LineCallbackHandler)
+	route.GET("/push", DevMode(), h.LinePushMessageHandler)
 
 	return route
 }

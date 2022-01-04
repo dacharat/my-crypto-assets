@@ -14,6 +14,7 @@ type config struct {
 	Binance        Binance
 	Line           Line
 	User           User
+	DevMode        bool `envconfig:"DEV_MODE" default:"false"`
 }
 
 type Algorand struct {
