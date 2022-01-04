@@ -24,7 +24,7 @@ func NewLineService(client *linebot.Client) ILine {
 }
 
 func (s *service) SendFlexMessage(ctx context.Context, token string, container *linebot.BubbleContainer) error {
-	_, err := s.client.ReplyMessage(token, linebot.NewFlexMessage("", container)).WithContext(ctx).Do()
+	_, err := s.client.ReplyMessage(token, linebot.NewFlexMessage("my crypto assets", container)).WithContext(ctx).Do()
 	if err != nil {
 		return err
 	}
