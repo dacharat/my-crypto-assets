@@ -52,8 +52,10 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 		return
 	}
 
+	token := event[0].ReplyToken
 	if event[0].Source.UserID != config.Cfg.Line.UserID {
-		c.JSON(http.StatusForbidden, gin.H{"error": errors.New("invalid user")})
+		_ = h.lineSvc.ReplyTextMessage(ctx, token, "Not your assets!!")
+		c.JSON(http.StatusSeeOther, gin.H{"error": errors.New("invalid user")})
 		return
 	}
 
@@ -63,7 +65,7 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 		return
 	}
 
-	err = h.lineSvc.SendFlexMessage(c.Request.Context(), event[0].ReplyToken, data)
+	err = h.lineSvc.SendFlexMessage(c.Request.Context(), token, data)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
