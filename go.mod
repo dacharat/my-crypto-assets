@@ -1,3 +1,5 @@
+// +heroku goVersion go1.17
+
 module github.com/dacharat/my-crypto-assets
 
 go 1.17
