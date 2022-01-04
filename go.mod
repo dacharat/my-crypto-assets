@@ -1,5 +1,5 @@
 // +heroku goVersion go1.17
-// +heroku install ./cmd/api ./bin/api
+// +heroku install ./cmd/api
 
 module github.com/dacharat/my-crypto-assets
 
