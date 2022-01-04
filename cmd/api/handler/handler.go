@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/dacharat/my-crypto-assets/pkg/config"
@@ -59,12 +60,14 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 
 	data, err := h.assetsSvc.GetAllAssets(ctx)
 	if err != nil {
+		fmt.Println("================> GetAllAssets:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 
 	err = h.lineSvc.SendFlexMessage(c.Request.Context(), event[0].ReplyToken, data)
 	if err != nil {
+		fmt.Println("================> SendFlexMessage:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
