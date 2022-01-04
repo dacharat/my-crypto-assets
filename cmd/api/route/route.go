@@ -46,7 +46,7 @@ func NewRouter() *gin.Engine {
 	})
 
 	route.GET("/test", DevMode(), h.GetAccountBalanceHandler)
-	route.GET("/linebot", h.LineCallbackHandler)
+	route.POST("/linebot", h.LineCallbackHandler)
 	route.GET("/push", DevMode(), h.LinePushMessageHandler)
 
 	return route
