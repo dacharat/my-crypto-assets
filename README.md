@@ -3,5 +3,5 @@
 ### Get started
 
 ```
-ENV=dev go run cmd/api/main.go
+make dev
 ```

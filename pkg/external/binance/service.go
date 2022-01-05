@@ -42,7 +42,7 @@ func (s *service) GetAccount(ctx context.Context) (GetAccountResponse, error) {
 
 	uri := fmt.Sprintf("%s%s?%s&signature=%s", config.Cfg.Binance.Host, config.Cfg.Binance.GetAccount, query, signRequest([]byte(query)))
 
-	resp, err := s.client.Get(ctx, uri, generateHeader())
+	resp, err := s.client.Get(ctx, uri, generateHeader(), httpclient.WithoutResLog())
 	if err != nil {
 		return GetAccountResponse{}, err
 	}
@@ -83,7 +83,7 @@ func (s *service) GetSavingBalance(ctx context.Context) (GetSavingBalanceRespons
 func (s *service) GetTricker(ctx context.Context) (map[string]float64, error) {
 	uri := fmt.Sprintf("%s%s", config.Cfg.Binance.Host, config.Cfg.Binance.GetTricker)
 
-	resp, err := s.client.Get(ctx, uri, generateHeader())
+	resp, err := s.client.Get(ctx, uri, generateHeader(), httpclient.WithoutResLog())
 	if err != nil {
 		return nil, err
 	}
