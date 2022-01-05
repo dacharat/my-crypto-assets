@@ -34,7 +34,7 @@ func (s *service) GetAllAssets(ctx context.Context) ([]shared.Account, error) {
 	}
 
 	var data []shared.Account
-	for i := 0; i < 3; i++ {
+	for i := 0; i < len(s.assetSvcs); i++ {
 		result := <-c
 		if result.Err != nil {
 			return nil, result.Err

@@ -67,7 +67,7 @@ func (s *service) GetWallet(ctx context.Context) (GetWalletResponse, error) {
 
 func (s *service) GetTricker(ctx context.Context) (GetTrickerResponse, error) {
 	uri := fmt.Sprintf("%s%s", config.Cfg.Bitkub.Host, config.Cfg.Bitkub.GetTricker)
-	resp, err := s.client.Get(ctx, uri, nil)
+	resp, err := s.client.Get(ctx, uri, nil, httpclient.WithoutResLog())
 	if err != nil {
 		return GetTrickerResponse{}, err
 	}
