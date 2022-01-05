@@ -74,7 +74,7 @@ func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
 
 	return shared.Account{
 		Platform:   shared.Binance,
-		Assets:     assets,
+		Assets:     assets.Sort(),
 		TotalPrice: assets.TotalPrice(),
 	}, nil
 }

@@ -54,7 +54,7 @@ func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
 
 	return shared.Account{
 		Platform:   shared.Bitkub,
-		Assets:     assets,
+		Assets:     assets.Sort(),
 		TotalPrice: assets.TotalPrice(),
 	}, nil
 }

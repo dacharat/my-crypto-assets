@@ -60,7 +60,8 @@ type Line struct {
 }
 
 type User struct {
-	AlgoAddress string `envconfig:"MY_ALGO_ADDRESS" required:"true"`
+	AlgoAddress      string `envconfig:"MY_ALGO_ADDRESS" required:"true"`
+	MaxAssetsDisplay int    `envconfig:"MAX_ASSETS_DISPLAY" default:"3"`
 }
 
 func NewConfig() {
