@@ -2,7 +2,9 @@ package lineservice
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/external/line"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/dacharat/my-crypto-assets/pkg/util/pointer"
@@ -59,13 +61,13 @@ func createComponent(accounts []shared.Account) *linebot.BubbleContainer {
 		totalPrice += account.TotalPrice
 	}
 
-	container.Body.Contents = append(container.Body.Contents, createTotalAssetsComponent(totalPrice))
+	container.Body.Contents = append(container.Body.Contents, createTotalAccountAssetsComponent(totalPrice))
 
 	return container
 }
 
 func createAccountComponent(account shared.Account) *linebot.BoxComponent {
-	return &linebot.BoxComponent{
+	box := &linebot.BoxComponent{
 		Type:   linebot.FlexComponentTypeText,
 		Layout: linebot.FlexBoxLayoutTypeVertical,
 		Contents: []linebot.FlexComponent{
@@ -94,9 +96,58 @@ func createAccountComponent(account shared.Account) *linebot.BoxComponent {
 			},
 		},
 	}
+
+	line := config.Cfg.User.MaxAssetsDisplay
+	var allAssets bool
+	if len(account.Assets) < line {
+		allAssets = true
+		line = len(account.Assets)
+	}
+
+	for i := 0; i < line; i++ {
+		box.Contents = append(box.Contents, createAssetComponent(account.Assets[i]))
+	}
+	if !allAssets {
+		box.Contents = append(box.Contents, createHasMoreComponent())
+	}
+
+	return box
 }
 
-func createTotalAssetsComponent(totalPrice float64) *linebot.BoxComponent {
+func createAssetComponent(asset *shared.Asset) *linebot.BoxComponent {
+	return &linebot.BoxComponent{
+		Type:   linebot.FlexComponentTypeText,
+		Layout: linebot.FlexBoxLayoutTypeVertical,
+		Contents: []linebot.FlexComponent{
+			&linebot.BoxComponent{
+				Type:       linebot.FlexComponentTypeText,
+				Layout:     linebot.FlexBoxLayoutTypeHorizontal,
+				PaddingTop: "8px",
+				Contents: []linebot.FlexComponent{
+					&linebot.TextComponent{
+						Type:        linebot.FlexComponentTypeText,
+						Text:        fmt.Sprintf("%.2f %s", asset.Amount, asset.Name),
+						Flex:        pointer.NewInt(8),
+						Color:       "#f5f7f8",
+						Size:        linebot.FlexTextSizeTypeXs,
+						OffsetStart: linebot.FlexComponentOffsetTypeMd,
+						Align:       linebot.FlexComponentAlignTypeStart,
+					},
+					&linebot.TextComponent{
+						Type:  linebot.FlexComponentTypeText,
+						Text:  price.Dollar(asset.Price),
+						Flex:  pointer.NewInt(4),
+						Color: "#f5f7f8",
+						Size:  linebot.FlexTextSizeTypeXs,
+						Align: linebot.FlexComponentAlignTypeEnd,
+					},
+				},
+			},
+		},
+	}
+}
+
+func createTotalAccountAssetsComponent(totalPrice float64) *linebot.BoxComponent {
 	return &linebot.BoxComponent{
 		Type:   linebot.FlexComponentTypeText,
 		Layout: linebot.FlexBoxLayoutTypeVertical,
@@ -123,6 +174,24 @@ func createTotalAssetsComponent(totalPrice float64) *linebot.BoxComponent {
 						Align:  linebot.FlexComponentAlignTypeEnd,
 					},
 				},
+			},
+		},
+	}
+}
+
+func createHasMoreComponent() *linebot.BoxComponent {
+	return &linebot.BoxComponent{
+		Type:   linebot.FlexComponentTypeText,
+		Layout: linebot.FlexBoxLayoutTypeVertical,
+		Contents: []linebot.FlexComponent{
+			&linebot.TextComponent{
+				Type:        linebot.FlexComponentTypeText,
+				Text:        ".....",
+				Flex:        pointer.NewInt(8),
+				Color:       "#f5f7f8",
+				Size:        linebot.FlexTextSizeTypeXs,
+				OffsetStart: linebot.FlexComponentOffsetTypeMd,
+				Align:       linebot.FlexComponentAlignTypeStart,
 			},
 		},
 	}

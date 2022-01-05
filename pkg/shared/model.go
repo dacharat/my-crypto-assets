@@ -1,5 +1,7 @@
 package shared
 
+import "sort"
+
 const (
 	Binance  Platform = "Binance"
 	Bitkub   Platform = "Bitkub"
@@ -32,4 +34,12 @@ func (a Assets) TotalPrice() float64 {
 	}
 
 	return total
+}
+
+func (a Assets) Sort() Assets {
+	sort.Slice(a, func(i, j int) bool {
+		return a[i].Price > a[j].Price
+	})
+
+	return a
 }
