@@ -22,7 +22,7 @@ type service struct {
 	lineApi line.ILine
 }
 
-func NewLineService(lineApi line.ILine) ILineService {
+func NewService(lineApi line.ILine) ILineService {
 	return &service{
 		lineApi: lineApi,
 	}

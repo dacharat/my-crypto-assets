@@ -15,6 +15,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/util/httpclient"
 )
 
+//go:generate mockgen -source=./service.go -destination=./mock_bitkub/mock_service.go -package=mock_bitkub
 type IBitkub interface {
 	GetWallet(ctx context.Context) (GetWalletResponse, error)
 	GetTricker(ctx context.Context) (GetTrickerResponse, error)
