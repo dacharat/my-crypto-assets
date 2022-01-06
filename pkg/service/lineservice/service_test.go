@@ -13,7 +13,7 @@ import (
 
 func TestService(t *testing.T) {
 	t.Run("SendFlexMessage", func(tt *testing.T) {
-		t.Run("should return error line send flex", func(ttt *testing.T) {
+		tt.Run("should return error line send flex", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newBitkubTestSvc(ttt)
 			defer finish()
@@ -24,7 +24,7 @@ func TestService(t *testing.T) {
 			require.Error(ttt, err)
 		})
 
-		t.Run("should send flex success", func(ttt *testing.T) {
+		tt.Run("should send flex success", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newBitkubTestSvc(ttt)
 			defer finish()
@@ -37,7 +37,7 @@ func TestService(t *testing.T) {
 	})
 
 	t.Run("ReplyTextMessage", func(tt *testing.T) {
-		t.Run("should return error line reply message", func(ttt *testing.T) {
+		tt.Run("should return error line reply message", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newBitkubTestSvc(ttt)
 			defer finish()
@@ -50,7 +50,7 @@ func TestService(t *testing.T) {
 			require.Error(ttt, err)
 		})
 
-		t.Run("should reply message success", func(ttt *testing.T) {
+		tt.Run("should reply message success", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newBitkubTestSvc(ttt)
 			defer finish()
@@ -65,7 +65,7 @@ func TestService(t *testing.T) {
 	})
 
 	t.Run("PushMessage", func(tt *testing.T) {
-		t.Run("should return error line push message", func(ttt *testing.T) {
+		tt.Run("should return error line push message", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newBitkubTestSvc(ttt)
 			defer finish()
@@ -76,7 +76,7 @@ func TestService(t *testing.T) {
 			require.Error(ttt, err)
 		})
 
-		t.Run("should push message success", func(ttt *testing.T) {
+		tt.Run("should push message success", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newBitkubTestSvc(ttt)
 			defer finish()

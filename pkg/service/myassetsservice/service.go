@@ -19,14 +19,14 @@ type AccountErr struct {
 	Err     error
 }
 
-func NewHandler(assetSvcs ...shared.IAssetsService) IMyAssetsService {
+func NewService(assetSvcs ...shared.IAssetsService) IMyAssetsService {
 	return &service{
 		assetSvcs: assetSvcs,
 	}
 }
 
 func (s *service) GetAllAssets(ctx context.Context) ([]shared.Account, error) {
-	c := make(chan AccountErr, 3)
+	c := make(chan AccountErr, len(s.assetSvcs))
 	defer close(c)
 
 	for _, assetSvc := range s.assetSvcs {

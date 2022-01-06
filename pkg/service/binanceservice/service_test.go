@@ -15,7 +15,7 @@ import (
 
 func TestService(t *testing.T) {
 	t.Run("GetAccount", func(tt *testing.T) {
-		t.Run("should return error from get binance account", func(ttt *testing.T) {
+		tt.Run("should return error from get binance account", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newBinanceTestSvc(ttt)
 			defer finish()
@@ -26,7 +26,7 @@ func TestService(t *testing.T) {
 			require.Error(ttt, err)
 		})
 
-		t.Run("should return error from get binance tricker", func(ttt *testing.T) {
+		tt.Run("should return error from get binance tricker", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newBinanceTestSvc(ttt)
 			defer finish()
@@ -38,7 +38,7 @@ func TestService(t *testing.T) {
 			require.Error(ttt, err)
 		})
 
-		t.Run("should return binance account", func(ttt *testing.T) {
+		tt.Run("should return binance account", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newBinanceTestSvc(ttt)
 			defer finish()

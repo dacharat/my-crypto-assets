@@ -19,7 +19,7 @@ import (
 
 func TestService(t *testing.T) {
 	t.Run("GetAccount", func(tt *testing.T) {
-		t.Run("should return error from get algorand account", func(ttt *testing.T) {
+		tt.Run("should return error from get algorand account", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newAlgorandTestSvc(ttt)
 			defer finish()
@@ -32,7 +32,7 @@ func TestService(t *testing.T) {
 			require.Error(ttt, err)
 		})
 
-		t.Run("should return algorand account", func(ttt *testing.T) {
+		tt.Run("should return algorand account", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newAlgorandTestSvc(ttt)
 			defer finish()

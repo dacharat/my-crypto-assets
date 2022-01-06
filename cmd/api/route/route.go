@@ -36,7 +36,7 @@ func NewRouter() *gin.Engine {
 	algoSvc := algorandservice.NewService(algoApi, priceApi)
 	bitkubSvc := bitkubservice.NewService(bitkubApi)
 	binanceSvc := binanceservice.NewService(binancApi)
-	myAssetsSvc := myassetsservice.NewHandler(algoSvc, bitkubSvc, binanceSvc)
+	myAssetsSvc := myassetsservice.NewService(algoSvc, bitkubSvc, binanceSvc)
 	lineSvc := lineservice.NewService(lineApi)
 
 	h := handler.NewHandler(myAssetsSvc, lineSvc, client.ParseRequest)
