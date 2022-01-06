@@ -7,6 +7,7 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
+//go:generate mockgen -source=./service.go -destination=./mock_line/mock_service.go -package=mock_line
 type ILine interface {
 	SendFlexMessage(ctx context.Context, token string, container *linebot.BubbleContainer) error
 	ReplyTextMessage(ctx context.Context, token string, message string) error

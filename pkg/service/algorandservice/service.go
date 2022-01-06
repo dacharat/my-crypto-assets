@@ -40,7 +40,6 @@ func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
 func (s *service) mapToAccount(ctx context.Context, resAcount algorand.Account) shared.Account {
 	priceRes, _ := s.price.GetPrice(ctx, coingecko.Algo)
 
-	// resAcount := res.Account
 	account := shared.Account{
 		Platform: shared.Algorand,
 		Address:  resAcount.Address,

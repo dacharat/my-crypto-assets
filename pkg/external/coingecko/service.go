@@ -11,6 +11,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/util/httpclient"
 )
 
+//go:generate mockgen -source=./service.go -destination=./mock_coingecko/mock_service.go -package=mock_coingecko
 type ICoingecko interface {
 	GetPrice(ctx context.Context, c Chain) (GetPriceResponse, error)
 }

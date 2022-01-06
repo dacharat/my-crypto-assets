@@ -10,6 +10,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/util/httpclient"
 )
 
+//go:generate mockgen -source=./service.go -destination=./mock_algorand/mock_service.go -package=mock_algorand
 type IAlgoland interface {
 	GetAlgodAccountByID(ctx context.Context, account string) (Account, error)
 	GetAssetByID(ctx context.Context, asset int) (AssetResponse, error)
