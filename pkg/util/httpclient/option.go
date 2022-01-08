@@ -1,19 +1,19 @@
 package httpclient
 
-type option func(*httpOption)
+type Option func(*httpOption)
 
 type httpOption struct {
 	withoutReqLog bool
 	withoutResLog bool
 }
 
-func WithoutReqLog() option {
+func WithoutReqLog() Option {
 	return func(ho *httpOption) {
 		ho.withoutReqLog = true
 	}
 }
 
-func WithoutResLog() option {
+func WithoutResLog() Option {
 	return func(ho *httpOption) {
 		ho.withoutResLog = true
 	}

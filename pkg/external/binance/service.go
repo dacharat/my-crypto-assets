@@ -10,10 +10,10 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
 
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/util/httpclient"
+	"github.com/dacharat/my-crypto-assets/pkg/util/timeutil"
 )
 
 //go:generate mockgen -source=./service.go -destination=./mock_binance/mock_service.go -package=mock_binance
@@ -25,18 +25,18 @@ type IBinance interface {
 }
 
 type service struct {
-	client httpclient.Client
+	client httpclient.IClient
 }
 
-func NewBinanceService() IBinance {
+func NewBinanceService(client httpclient.IClient) IBinance {
 	return &service{
-		client: httpclient.NewClient(),
+		client: client,
 	}
 }
 
 // GetAccount get account spot and saving balance
 func (s *service) GetAccount(ctx context.Context) (GetAccountResponse, error) {
-	nowMilli := time.Now().UnixMilli()
+	nowMilli := timeutil.Now().UnixMilli()
 	query := url.Values{
 		"timestamp": []string{fmt.Sprintf("%d", nowMilli)},
 	}.Encode()
@@ -59,7 +59,7 @@ func (s *service) GetAccount(ctx context.Context) (GetAccountResponse, error) {
 
 // GetSavingBalance get account saving balance
 func (s *service) GetSavingBalance(ctx context.Context) (GetSavingBalanceResponse, error) {
-	nowMilli := time.Now().UnixMilli()
+	nowMilli := timeutil.Now().UnixMilli()
 	query := url.Values{
 		"timestamp": []string{fmt.Sprintf("%d", nowMilli)},
 	}.Encode()

@@ -15,6 +15,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/service/bitkubservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice"
+	"github.com/dacharat/my-crypto-assets/pkg/util/httpclient"
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
@@ -27,10 +28,12 @@ func NewRouter() *gin.Engine {
 		panic(err)
 	}
 
-	algoApi := algorand.NewAlgolandService()
-	priceApi := coingecko.NewCoingeckoService()
-	bitkubApi := bitkub.NewBitkubService()
-	binancApi := binance.NewBinanceService()
+	hc := httpclient.NewClient()
+
+	algoApi := algorand.NewAlgolandService(hc)
+	priceApi := coingecko.NewCoingeckoService(hc)
+	bitkubApi := bitkub.NewBitkubService(hc)
+	binancApi := binance.NewBinanceService(hc)
 	lineApi := line.NewLineService(client)
 
 	algoSvc := algorandservice.NewService(algoApi, priceApi)

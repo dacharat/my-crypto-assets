@@ -12,6 +12,7 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
+//go:generate mockgen -source=./service.go -destination=./mock_line_service/mock_service.go -package=mock_line_service
 type ILineService interface {
 	SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error
 	ReplyTextMessage(ctx context.Context, token string, message string) error

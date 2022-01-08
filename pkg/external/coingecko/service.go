@@ -17,12 +17,12 @@ type ICoingecko interface {
 }
 
 type service struct {
-	client httpclient.Client
+	client httpclient.IClient
 }
 
-func NewCoingeckoService() ICoingecko {
+func NewCoingeckoService(client httpclient.IClient) ICoingecko {
 	return &service{
-		client: httpclient.NewClient(),
+		client: client,
 	}
 }
 

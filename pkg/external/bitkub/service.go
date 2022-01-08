@@ -9,10 +9,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/util/httpclient"
+	"github.com/dacharat/my-crypto-assets/pkg/util/timeutil"
 )
 
 //go:generate mockgen -source=./service.go -destination=./mock_bitkub/mock_service.go -package=mock_bitkub
@@ -22,12 +22,12 @@ type IBitkub interface {
 }
 
 type service struct {
-	client httpclient.Client
+	client httpclient.IClient
 }
 
-func NewBitkubService() IBitkub {
+func NewBitkubService(client httpclient.IClient) IBitkub {
 	return &service{
-		client: httpclient.NewClient(),
+		client: client,
 	}
 }
 
@@ -35,7 +35,7 @@ func (s *service) GetWallet(ctx context.Context) (GetWalletResponse, error) {
 	uri := fmt.Sprintf("%s%s", config.Cfg.Bitkub.Host, config.Cfg.Bitkub.GetWallet)
 	header := generateHeader()
 
-	t := time.Now().Unix()
+	t := timeutil.Now().Unix()
 	body := orderBody{
 		Ts: t,
 	}
