@@ -2,6 +2,7 @@ package algorandservice
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/external/algorand"
@@ -28,17 +29,42 @@ func (s *service) Type() string {
 }
 
 func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
-	account := config.Cfg.User.AlgoAddress
-	res, err := s.api.GetAlgodAccountByID(ctx, account)
+	c := make(chan error, 1)
+	var price coingecko.GetPriceResponse
+	var res algorand.Account
+
+	go func() {
+		priceRes, err := s.price.GetPrice(ctx, coingecko.Algo)
+		if err == nil {
+			price = priceRes
+		}
+		c <- err
+	}()
+
+	go func() {
+		accountAddress := config.Cfg.User.AlgoAddress
+		account, err := s.api.GetAlgodAccountByID(ctx, accountAddress)
+		if err == nil {
+			res = account
+		}
+		c <- err
+	}()
+
+	var err error
+	for i := 0; i < 2; i++ {
+		errChan := <-c
+		if errChan != nil {
+			err = fmt.Errorf("%d: %w", i, errChan)
+		}
+	}
 	if err != nil {
 		return shared.Account{}, err
 	}
 
-	return s.mapToAccount(ctx, res), nil
+	return s.mapToAccount(ctx, res, price), nil
 }
 
-func (s *service) mapToAccount(ctx context.Context, resAcount algorand.Account) shared.Account {
-	priceRes, _ := s.price.GetPrice(ctx, coingecko.Algo)
+func (s *service) mapToAccount(ctx context.Context, resAcount algorand.Account, priceRes coingecko.GetPriceResponse) shared.Account {
 
 	account := shared.Account{
 		Platform: shared.Algorand,
