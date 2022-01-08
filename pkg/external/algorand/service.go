@@ -17,12 +17,12 @@ type IAlgoland interface {
 }
 
 type service struct {
-	client httpclient.Client
+	client httpclient.IClient
 }
 
-func NewAlgolandService() IAlgoland {
+func NewAlgolandService(client httpclient.IClient) IAlgoland {
 	return &service{
-		client: httpclient.NewClient(),
+		client: client,
 	}
 }
 

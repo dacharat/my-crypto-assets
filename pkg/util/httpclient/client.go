@@ -9,29 +9,36 @@ import (
 	"net/http/httputil"
 )
 
-type Client struct {
-	client *http.Client
+//go:generate mockgen -source=./client.go -destination=./mock_client/mock_client.go -package=mock_client
+type IClient interface {
+	Get(ctx context.Context, url string, header http.Header, opts ...Option) (*http.Response, error)
+	Post(ctx context.Context, url string, header http.Header, body io.Reader, opts ...Option) (*http.Response, error)
+	Put(ctx context.Context, url string, header http.Header, body io.Reader, opts ...Option) (*http.Response, error)
 }
 
-func NewClient() Client {
-	return Client{
+func NewClient() IClient {
+	return &Client{
 		client: http.DefaultClient,
 	}
 }
 
-func (c Client) Get(ctx context.Context, url string, header http.Header, opts ...option) (*http.Response, error) {
+type Client struct {
+	client *http.Client
+}
+
+func (c Client) Get(ctx context.Context, url string, header http.Header, opts ...Option) (*http.Response, error) {
 	return c.do(ctx, http.MethodGet, url, header, nil, opts...)
 }
 
-func (c Client) Post(ctx context.Context, url string, header http.Header, body io.Reader, opts ...option) (*http.Response, error) {
+func (c Client) Post(ctx context.Context, url string, header http.Header, body io.Reader, opts ...Option) (*http.Response, error) {
 	return c.do(ctx, http.MethodPost, url, header, body, opts...)
 }
 
-func (c *Client) Put(ctx context.Context, url string, header http.Header, body io.Reader, opts ...option) (*http.Response, error) {
+func (c Client) Put(ctx context.Context, url string, header http.Header, body io.Reader, opts ...Option) (*http.Response, error) {
 	return c.do(ctx, http.MethodPut, url, header, body, opts...)
 }
 
-func (c *Client) do(ctx context.Context, method string, url string, header http.Header, body io.Reader, opts ...option) (*http.Response, error) {
+func (c *Client) do(ctx context.Context, method string, url string, header http.Header, body io.Reader, opts ...Option) (*http.Response, error) {
 	ho := &httpOption{}
 	for _, opt := range opts {
 		opt(ho)

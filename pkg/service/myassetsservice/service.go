@@ -6,6 +6,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 )
 
+//go:generate mockgen -source=./service.go -destination=./mock_my_assets_service/mock_service.go -package=mock_my_assets_service
 type IMyAssetsService interface {
 	GetAllAssets(ctx context.Context) ([]shared.Account, error)
 }
