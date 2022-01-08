@@ -108,7 +108,7 @@ func (s *service) GetTricker(ctx context.Context) (map[string]float64, error) {
 func signRequest(body []byte) string {
 	h := hmac.New(sha256.New, []byte(config.Cfg.Binance.ApiSecret))
 	if body != nil {
-		h.Write(body)
+		_, _ = h.Write(body)
 	}
 	hmacSigned := h.Sum(nil)
 
