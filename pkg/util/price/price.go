@@ -15,7 +15,7 @@ func format(number string) string {
 
 	decimal := ""
 
-	if strings.Index(number, ".") != -1 {
+	if strings.Contains(number, ".") {
 		decimal = number[strings.Index(number, ".")+1:]
 		number = number[0:strings.Index(number, ".")]
 	}
