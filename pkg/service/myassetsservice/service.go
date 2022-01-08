@@ -2,6 +2,7 @@ package myassetsservice
 
 import (
 	"context"
+	"sort"
 
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 )
@@ -42,6 +43,11 @@ func (s *service) GetAllAssets(ctx context.Context) ([]shared.Account, error) {
 		}
 		data = append(data, result.Account)
 	}
+
+	// sort account by platform
+	sort.Slice(data, func(i, j int) bool {
+		return string(data[i].Platform) < string(data[j].Platform)
+	})
 
 	return data, nil
 }
