@@ -27,6 +27,7 @@ func TestService(t *testing.T) {
 			config.Cfg.User.AlgoAddress = "123"
 
 			mockSvc.mockAlgorand.EXPECT().GetAlgodAccountByID(ctx, "123").Return(algorand.Account{}, errors.New("error"))
+			mockSvc.mockCoinGecko.EXPECT().GetPrice(ctx, coingecko.Algo).Return(coingecko.GetPriceResponse{}, nil)
 
 			_, err := svc.GetAccount(ctx)
 			require.Error(ttt, err)
@@ -40,8 +41,7 @@ func TestService(t *testing.T) {
 			mockSvc.mockAlgorand.EXPECT().GetAlgodAccountByID(ctx, "").Return(algorand.Account{
 				Address: "",
 			}, nil)
-
-			mockSvc.mockCoinGecko.EXPECT().GetPrice(ctx, coingecko.Algo)
+			mockSvc.mockCoinGecko.EXPECT().GetPrice(ctx, coingecko.Algo).Return(coingecko.GetPriceResponse{}, nil)
 
 			_, err := svc.GetAccount(ctx)
 			require.NoError(ttt, err)
