@@ -16,7 +16,8 @@ type config struct {
 	Binance        Binance
 	Line           Line
 	User           User
-	DevMode        bool `envconfig:"DEV_MODE" default:"false"`
+	DevMode        bool   `envconfig:"DEV_MODE" default:"false"`
+	Port           string `envconfig:"PORT" default:":8080"`
 }
 
 type Algorand struct {
