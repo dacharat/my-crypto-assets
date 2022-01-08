@@ -19,7 +19,7 @@ func main() {
 	router := route.NewRouter()
 
 	httpSrv := &http.Server{
-		Addr:    ":8080",
+		Addr:    config.Cfg.Port,
 		Handler: router,
 	}
 
