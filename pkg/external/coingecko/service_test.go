@@ -4,10 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"strings"
 	"testing"
 
@@ -25,12 +23,9 @@ func TestService(t *testing.T) {
 			coingeckoSvc, mockSvc, finish := newCoingeckoTestSvc(ttt)
 			defer finish()
 
-			ids := url.QueryEscape(strings.Join(coingecko.AlgoCoinID.IDs(), ","))
-			uri := fmt.Sprintf("https://coingecko.host.com/getsimpleprice?ids=%s&vs_currencies=usd", ids)
-
 			mockSvc.mockHttpClient.
 				EXPECT().
-				Get(ctx, uri, nil).
+				Get(ctx, gomock.Any(), nil).
 				Return(nil, errors.New("error"))
 
 			_, err := coingeckoSvc.GetPrice(ctx, coingecko.Algo)
@@ -43,15 +38,12 @@ func TestService(t *testing.T) {
 			coingeckoSvc, mockSvc, finish := newCoingeckoTestSvc(ttt)
 			defer finish()
 
-			ids := url.QueryEscape(strings.Join(coingecko.AlgoCoinID.IDs(), ","))
-			uri := fmt.Sprintf("https://coingecko.host.com/getsimpleprice?ids=%s&vs_currencies=usd", ids)
-
 			cgk := coingecko.GetPriceResponse{}
 			cgkStr, _ := json.Marshal(cgk)
 
 			mockSvc.mockHttpClient.
 				EXPECT().
-				Get(ctx, uri, nil).
+				Get(ctx, gomock.Any(), nil).
 				Return(createHttpResponse(http.StatusOK, string(cgkStr)), nil)
 
 			_, err := coingeckoSvc.GetPrice(ctx, coingecko.Algo)
