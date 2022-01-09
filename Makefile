@@ -10,3 +10,6 @@ vet:
 cleantest:
 	go clean -testcache
 	go test -v ./...
+
+precommit: vet
+	golangci-lint run
