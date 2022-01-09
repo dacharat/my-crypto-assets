@@ -46,7 +46,7 @@ func TestHandler(t *testing.T) {
 	})
 
 	t.Run("LineCallbackHandler", func(tt *testing.T) {
-		tt.Run("should return 400 parseReq error", func(ttt *testing.T) {
+		tt.Run("should return 400 ParseRequest error", func(ttt *testing.T) {
 			res, c := testutil.NewDefaultContext()
 
 			handler, mockHandler, finish := newHandlerTest(ttt)

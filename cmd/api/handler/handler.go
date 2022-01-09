@@ -37,7 +37,6 @@ func (h Handler) GetAccountBalanceHandler(c *gin.Context) {
 func (h Handler) LineCallbackHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	// event, err := h.parseReq(c.Request)
 	event, err := h.lineSvc.ParseRequest(c.Request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
