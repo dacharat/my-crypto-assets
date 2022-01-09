@@ -7,8 +7,10 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func NewService() shared.IAssetsService {
-	return &service{}
+func NewService(conn *ethclient.Client) shared.IAssetsService {
+	return &service{
+		conn: conn,
+	}
 }
 
 type service struct {

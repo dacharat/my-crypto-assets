@@ -31,7 +31,7 @@ func NewRouter() *gin.Engine {
 	}
 
 	hc := httpclient.NewClient()
-	_, err = ethclient.Dial("https://rpc.bitkubchain.io")
+	_, _ = ethclient.Dial("https://rpc.bitkubchain.io")
 
 	algoApi := algorand.NewAlgolandService(hc)
 	priceApi := coingecko.NewCoingeckoService(hc)
