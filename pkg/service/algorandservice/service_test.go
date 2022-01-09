@@ -24,12 +24,12 @@ func TestService(t *testing.T) {
 			svc, mockSvc, finish := newAlgorandTestSvc(ttt)
 			defer finish()
 
-			config.Cfg.User.AlgoAddress = "123"
-
 			mockSvc.mockAlgorand.EXPECT().GetAlgodAccountByID(ctx, "123").Return(algorand.Account{}, errors.New("error"))
 			mockSvc.mockCoinGecko.EXPECT().GetPrice(ctx, coingecko.Algo).Return(coingecko.GetPriceResponse{}, nil)
 
-			_, err := svc.GetAccount(ctx, shared.GetAccountReq{})
+			_, err := svc.GetAccount(ctx, shared.GetAccountReq{
+				AlgorandAddress: "123",
+			})
 			require.Error(ttt, err)
 		})
 
@@ -57,15 +57,18 @@ type algorandServiceMock struct {
 func newAlgorandTestSvc(t gomock.TestReporter) (shared.IAssetsService, algorandServiceMock, func()) {
 	ctrl := gomock.NewController(t)
 
+	cfg := &config.Algorand{
+		DefaultDecimal: 6,
+	}
+
 	mockSvc := algorandServiceMock{
 		mockAlgorand:  mock_algorand.NewMockIAlgoland(ctrl),
 		mockCoinGecko: mock_coingecko.NewMockICoingecko(ctrl),
 	}
 
-	svc := algorandservice.NewService(mockSvc.mockAlgorand, mockSvc.mockCoinGecko)
+	svc := algorandservice.NewService(mockSvc.mockAlgorand, mockSvc.mockCoinGecko, cfg)
 
 	finish := func() {
-		config.Cfg.User.AlgoAddress = ""
 		ctrl.Finish()
 	}
 

@@ -59,8 +59,11 @@ type coingeckoSvcMock struct {
 
 func newCoingeckoTestSvc(t gomock.TestReporter) (coingecko.ICoingecko, coingeckoSvcMock, func()) {
 	ctrl := gomock.NewController(t)
-	config.Cfg.Coingecko.Host = "https://coingecko.host.com"
-	config.Cfg.Coingecko.GetSimplePrice = "/getsimpleprice"
+
+	cfg := &config.Coingecko{
+		Host:           "https://coingecko.host.com",
+		GetSimplePrice: "/getsimpleprice",
+	}
 
 	mockSvc := coingeckoSvcMock{
 		mockHttpClient: mock_client.NewMockIClient(ctrl),
@@ -70,7 +73,7 @@ func newCoingeckoTestSvc(t gomock.TestReporter) (coingecko.ICoingecko, coingecko
 		ctrl.Finish()
 	}
 
-	coingeckoSvc := coingecko.NewCoingeckoService(mockSvc.mockHttpClient)
+	coingeckoSvc := coingecko.NewCoingeckoService(mockSvc.mockHttpClient, cfg)
 
 	return coingeckoSvc, mockSvc, finish
 }

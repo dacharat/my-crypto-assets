@@ -21,10 +21,11 @@ import (
 type App struct {
 	myAssetsSvc myassetsservice.IMyAssetsService
 	lienSvc     lineservice.ILineService
+	cfg         *config.Config
 }
 
-func New() App {
-	client, err := linebot.New(config.Cfg.Line.ChannelSecret, config.Cfg.Line.ChannelAccessToken)
+func New(cfg *config.Config) App {
+	client, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
 	if err != nil {
 		panic(err)
 	}
@@ -32,24 +33,25 @@ func New() App {
 	hc := httpclient.NewClient()
 	_, _ = ethclient.Dial("https://rpc.bitkubchain.io")
 
-	algoApi := algorand.NewAlgolandService(hc)
-	priceApi := coingecko.NewCoingeckoService(hc)
-	bitkubApi := bitkub.NewBitkubService(hc)
-	binancApi := binance.NewBinanceService(hc)
-	lineApi := line.NewLineService(client)
+	algoApi := algorand.NewAlgolandService(hc, &cfg.AlgorandClient)
+	priceApi := coingecko.NewCoingeckoService(hc, &cfg.Coingecko)
+	bitkubApi := bitkub.NewBitkubService(hc, &cfg.Bitkub)
+	binancApi := binance.NewBinanceService(hc, &cfg.Binance)
+	lineApi := line.NewLineService(client, &cfg.Line)
 
 	assetsServices := []shared.IAssetsService{
-		algorandservice.NewService(algoApi, priceApi),
+		algorandservice.NewService(algoApi, priceApi, &cfg.AlgorandClient),
 		bitkubservice.NewService(bitkubApi),
 		binanceservice.NewService(binancApi),
 	}
 
-	myAssetsSvc := myassetsservice.NewService(assetsServices, priceApi)
-	lineSvc := lineservice.NewService(lineApi)
+	myAssetsSvc := myassetsservice.NewService(assetsServices, priceApi, &cfg.User)
+	lineSvc := lineservice.NewService(lineApi, &cfg.User, cfg.Line.UserID)
 
 	return App{
 		myAssetsSvc: myAssetsSvc,
 		lienSvc:     lineSvc,
+		cfg:         cfg,
 	}
 }
 
@@ -59,4 +61,8 @@ func (a App) GetMyAssetsSvc() myassetsservice.IMyAssetsService {
 
 func (a App) GetLineSvc() lineservice.ILineService {
 	return a.lienSvc
+}
+
+func (a App) GetConfig() *config.Config {
+	return a.cfg
 }

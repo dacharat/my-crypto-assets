@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/external/coingecko/mock_coingecko"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
@@ -19,7 +20,9 @@ func TestService(t *testing.T) {
 			svc, mockSvc, finish := newMyAssetsTestSvc(ttt)
 			defer finish()
 
-			mockSvc.mockAssetsService.EXPECT().GetAccount(ctx, shared.GetAccountReq{}).Times(3)
+			mockSvc.mockAssetsService.EXPECT().GetAccount(ctx, shared.GetAccountReq{
+				AlgorandAddress: "algo_address",
+			}).Times(3)
 
 			assets, err := svc.GetAllAssets(ctx)
 
@@ -37,6 +40,10 @@ type myAssetsServiceMock struct {
 func newMyAssetsTestSvc(t gomock.TestReporter) (myassetsservice.IMyAssetsService, myAssetsServiceMock, func()) {
 	ctrl := gomock.NewController(t)
 
+	cfg := &config.User{
+		AlgoAddress: "algo_address",
+	}
+
 	mockSvc := myAssetsServiceMock{
 		mockAssetsService: mock_assets_service.NewMockIAssetsService(ctrl),
 		mockCoinGecko:     mock_coingecko.NewMockICoingecko(ctrl),
@@ -44,7 +51,7 @@ func newMyAssetsTestSvc(t gomock.TestReporter) (myassetsservice.IMyAssetsService
 
 	assetsSvcs := []shared.IAssetsService{mockSvc.mockAssetsService, mockSvc.mockAssetsService, mockSvc.mockAssetsService}
 
-	svc := myassetsservice.NewService(assetsSvcs, mockSvc.mockCoinGecko)
+	svc := myassetsservice.NewService(assetsSvcs, mockSvc.mockCoinGecko, cfg)
 
 	finish := func() {
 		ctrl.Finish()

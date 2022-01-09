@@ -32,7 +32,7 @@ func TestService(t *testing.T) {
 
 			nowMilli := timeutil.Now().UnixMilli()
 
-			uri := fmt.Sprintf("%s%s?timestamp=%d&signature=a949160dee9d4c063525ab83812829cf76421f25dc9d3555cb5a2080edcd3809", config.Cfg.Binance.Host, config.Cfg.Binance.GetAccount, nowMilli)
+			uri := fmt.Sprintf("%s%s?timestamp=%d&signature=a949160dee9d4c063525ab83812829cf76421f25dc9d3555cb5a2080edcd3809", "https://binance.host.com", "/accounts", nowMilli)
 
 			mockSvc.mockHttpClient.
 				EXPECT().
@@ -53,7 +53,7 @@ func TestService(t *testing.T) {
 				return time.Date(2022, 1, 1, 1, 1, 1, 1, timeutil.BkkLoc)
 			}
 			nowMilli := timeutil.Now().UnixMilli()
-			uri := fmt.Sprintf("%s%s?timestamp=%d&signature=a949160dee9d4c063525ab83812829cf76421f25dc9d3555cb5a2080edcd3809", config.Cfg.Binance.Host, config.Cfg.Binance.GetAccount, nowMilli)
+			uri := fmt.Sprintf("%s%s?timestamp=%d&signature=a949160dee9d4c063525ab83812829cf76421f25dc9d3555cb5a2080edcd3809", "https://binance.host.com", "/accounts", nowMilli)
 			account := binance.GetAccountResponse{}
 			accountStr, _ := json.Marshal(account)
 
@@ -80,7 +80,7 @@ func TestService(t *testing.T) {
 
 			nowMilli := timeutil.Now().UnixMilli()
 
-			uri := fmt.Sprintf("%s%s?timestamp=%d&signature=a949160dee9d4c063525ab83812829cf76421f25dc9d3555cb5a2080edcd3809", config.Cfg.Binance.Host, config.Cfg.Binance.GetSaving, nowMilli)
+			uri := fmt.Sprintf("%s%s?timestamp=%d&signature=a949160dee9d4c063525ab83812829cf76421f25dc9d3555cb5a2080edcd3809", "https://binance.host.com", "/saving", nowMilli)
 
 			mockSvc.mockHttpClient.
 				EXPECT().
@@ -101,7 +101,7 @@ func TestService(t *testing.T) {
 				return time.Date(2022, 1, 1, 1, 1, 1, 1, timeutil.BkkLoc)
 			}
 			nowMilli := timeutil.Now().UnixMilli()
-			uri := fmt.Sprintf("%s%s?timestamp=%d&signature=a949160dee9d4c063525ab83812829cf76421f25dc9d3555cb5a2080edcd3809", config.Cfg.Binance.Host, config.Cfg.Binance.GetSaving, nowMilli)
+			uri := fmt.Sprintf("%s%s?timestamp=%d&signature=a949160dee9d4c063525ab83812829cf76421f25dc9d3555cb5a2080edcd3809", "https://binance.host.com", "/saving", nowMilli)
 			savingBalance := binance.GetSavingBalanceResponse{}
 			savingBalanceStr, _ := json.Marshal(savingBalance)
 
@@ -122,7 +122,7 @@ func TestService(t *testing.T) {
 			binanceSvc, mockSvc, finish := newBinanceTestSvc(ttt)
 			defer finish()
 
-			uri := fmt.Sprintf("%s%s", config.Cfg.Binance.Host, config.Cfg.Binance.GetTricker)
+			uri := fmt.Sprintf("%s%s", "https://binance.host.com", "/tricker")
 
 			mockSvc.mockHttpClient.
 				EXPECT().
@@ -139,7 +139,7 @@ func TestService(t *testing.T) {
 			binanceSvc, mockSvc, finish := newBinanceTestSvc(ttt)
 			defer finish()
 
-			uri := fmt.Sprintf("%s%s", config.Cfg.Binance.Host, config.Cfg.Binance.GetTricker)
+			uri := fmt.Sprintf("%s%s", "https://binance.host.com", "/tricker")
 			tricker := binance.GetTrickerResponse{}
 			trickerStr, _ := json.Marshal(tricker)
 
@@ -161,12 +161,15 @@ type binanceSvcMock struct {
 
 func newBinanceTestSvc(t gomock.TestReporter) (binance.IBinance, binanceSvcMock, func()) {
 	ctrl := gomock.NewController(t)
-	config.Cfg.Binance.Host = "https://binance.host.com"
-	config.Cfg.Binance.GetAccount = "/accounts"
-	config.Cfg.Binance.GetTricker = "/tricker"
-	config.Cfg.Binance.GetSaving = "/saving"
-	config.Cfg.Binance.ApiKey = "api-key"
-	config.Cfg.Binance.ApiSecret = "api-scret"
+
+	cfg := &config.Binance{
+		Host:       "https://binance.host.com",
+		GetAccount: "/accounts",
+		GetTricker: "/tricker",
+		GetSaving:  "/saving",
+		ApiKey:     "api-key",
+		ApiSecret:  "api-scret",
+	}
 
 	mockSvc := binanceSvcMock{
 		mockHttpClient: mock_client.NewMockIClient(ctrl),
@@ -176,7 +179,7 @@ func newBinanceTestSvc(t gomock.TestReporter) (binance.IBinance, binanceSvcMock,
 		ctrl.Finish()
 	}
 
-	binanceSvc := binance.NewBinanceService(mockSvc.mockHttpClient)
+	binanceSvc := binance.NewBinanceService(mockSvc.mockHttpClient, cfg)
 
 	return binanceSvc, mockSvc, finish
 }

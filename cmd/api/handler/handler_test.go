@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/dacharat/my-crypto-assets/cmd/api/handler"
-	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice/mock_line_service"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice/mock_my_assets_service"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
@@ -73,12 +72,12 @@ func TestHandler(t *testing.T) {
 		})
 
 		tt.Run("should return 303 not owner", func(ttt *testing.T) {
-			config.Cfg.Line.UserID = "other"
 			res, c := testutil.NewDefaultContext()
 
 			handler, mockHandler, finish := newHandlerTest(ttt)
 			defer finish()
 
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(false)
 			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
 			mockHandler.mockLineSvc.EXPECT().ReplyTextMessage(c.Request.Context(), "reply", "Not your assets!!")
 
@@ -93,6 +92,7 @@ func TestHandler(t *testing.T) {
 			handler, mockHandler, finish := newHandlerTest(ttt)
 			defer finish()
 
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
 			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
 			mockHandler.mockAssetsSvc.EXPECT().GetAllAssets(gomock.Any()).Return(nil, errors.New("error"))
 
@@ -109,6 +109,7 @@ func TestHandler(t *testing.T) {
 
 			accounts := []shared.Account{}
 
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
 			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
 			mockHandler.mockAssetsSvc.EXPECT().GetAllAssets(gomock.Any()).Return(accounts, nil)
 			mockHandler.mockLineSvc.EXPECT().SendFlexMessage(c.Request.Context(), "reply", accounts).Return(errors.New("error"))
@@ -126,6 +127,7 @@ func TestHandler(t *testing.T) {
 
 			accounts := []shared.Account{}
 
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
 			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
 			mockHandler.mockAssetsSvc.EXPECT().GetAllAssets(gomock.Any()).Return(accounts, nil)
 			mockHandler.mockLineSvc.EXPECT().SendFlexMessage(c.Request.Context(), "reply", accounts).Return(nil)
@@ -198,7 +200,6 @@ func newHandlerTest(t gomock.TestHelper) (handler.Handler, handlerMock, func()) 
 	}
 
 	finish := func() {
-		config.Cfg.Line.UserID = "owner"
 		ctrl.Finish()
 	}
 

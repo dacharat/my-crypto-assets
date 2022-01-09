@@ -23,17 +23,19 @@ type IBitkub interface {
 
 type service struct {
 	client httpclient.IClient
+	cfg    *config.Bitkub
 }
 
-func NewBitkubService(client httpclient.IClient) IBitkub {
+func NewBitkubService(client httpclient.IClient, cfg *config.Bitkub) IBitkub {
 	return &service{
 		client: client,
+		cfg:    cfg,
 	}
 }
 
 func (s *service) GetWallet(ctx context.Context) (GetWalletResponse, error) {
-	uri := fmt.Sprintf("%s%s", config.Cfg.Bitkub.Host, config.Cfg.Bitkub.GetWallet)
-	header := generateHeader()
+	uri := fmt.Sprintf("%s%s", s.cfg.Host, s.cfg.GetWallet)
+	header := s.generateHeader()
 
 	t := timeutil.Now().Unix()
 	body := orderBody{
@@ -45,7 +47,7 @@ func (s *service) GetWallet(ctx context.Context) (GetWalletResponse, error) {
 		return GetWalletResponse{}, err
 	}
 	// create signature and add it to request
-	sig := signRequest(byteBody)
+	sig := s.signRequest(byteBody)
 	body.Signature = sig
 	signedByteBody, err := json.Marshal(body)
 	if err != nil {
@@ -67,7 +69,7 @@ func (s *service) GetWallet(ctx context.Context) (GetWalletResponse, error) {
 }
 
 func (s *service) GetTricker(ctx context.Context) (GetTrickerResponse, error) {
-	uri := fmt.Sprintf("%s%s", config.Cfg.Bitkub.Host, config.Cfg.Bitkub.GetTricker)
+	uri := fmt.Sprintf("%s%s", s.cfg.Host, s.cfg.GetTricker)
 	resp, err := s.client.Get(ctx, uri, nil, httpclient.WithoutResLog())
 	if err != nil {
 		return GetTrickerResponse{}, err
@@ -82,17 +84,17 @@ func (s *service) GetTricker(ctx context.Context) (GetTrickerResponse, error) {
 	return response, nil
 }
 
-func signRequest(body []byte) string {
-	h := hmac.New(sha256.New, []byte(config.Cfg.Bitkub.ApiSecret))
+func (s *service) signRequest(body []byte) string {
+	h := hmac.New(sha256.New, []byte(s.cfg.ApiSecret))
 	_, _ = h.Write(body)
 	hmacSigned := h.Sum(nil)
 
 	return hex.EncodeToString(hmacSigned)
 }
 
-func generateHeader() http.Header {
+func (s *service) generateHeader() http.Header {
 	header := http.Header{}
-	header.Set("X-BTK-APIKEY", config.Cfg.Bitkub.ApiKey)
+	header.Set("X-BTK-APIKEY", s.cfg.ApiKey)
 	header.Set("Content-Type", "application/json")
 	header.Set("Accept", "application/json")
 

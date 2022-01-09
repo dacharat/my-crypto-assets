@@ -15,12 +15,14 @@ import (
 type service struct {
 	api   algorand.IAlgoland
 	price coingecko.ICoingecko
+	cfg   *config.Algorand
 }
 
-func NewService(api algorand.IAlgoland, price coingecko.ICoingecko) shared.IAssetsService {
+func NewService(api algorand.IAlgoland, price coingecko.ICoingecko, cfg *config.Algorand) shared.IAssetsService {
 	return &service{
 		api:   api,
 		price: price,
+		cfg:   cfg,
 	}
 }
 
@@ -29,7 +31,7 @@ func (s *service) Type() string {
 }
 
 func (s *service) GetAccount(ctx context.Context, req shared.GetAccountReq) (shared.Account, error) {
-	res, price, err := s.asyncGetAccountAndPrice(ctx)
+	res, price, err := s.asyncGetAccountAndPrice(ctx, req.AlgorandAddress)
 	if err != nil {
 		return shared.Account{}, err
 	}
@@ -37,7 +39,7 @@ func (s *service) GetAccount(ctx context.Context, req shared.GetAccountReq) (sha
 	return s.mapToAccount(ctx, res, price), nil
 }
 
-func (s *service) asyncGetAccountAndPrice(ctx context.Context) (algorand.Account, coingecko.GetPriceResponse, error) {
+func (s *service) asyncGetAccountAndPrice(ctx context.Context, accountAddress string) (algorand.Account, coingecko.GetPriceResponse, error) {
 	maxConcurrent := 2
 	c := make(chan error, maxConcurrent)
 	defer close(c)
@@ -53,7 +55,7 @@ func (s *service) asyncGetAccountAndPrice(ctx context.Context) (algorand.Account
 	}()
 
 	go func() {
-		accountAddress := config.Cfg.User.AlgoAddress
+		// accountAddress := config.Cfg.User.AlgoAddress
 		account, err := s.api.GetAlgodAccountByID(ctx, accountAddress)
 		if err == nil {
 			res = account
@@ -77,7 +79,7 @@ func (s *service) mapToAccount(ctx context.Context, resAcount algorand.Account, 
 		Address:  resAcount.Address,
 	}
 
-	algoAmount := toAmount(resAcount.Amount)
+	algoAmount := s.toAmount(resAcount.Amount)
 	algoPrice := algoAmount * priceRes.Price(coingecko.AlgoCoinID["ALGO"])
 	algo := &shared.Asset{
 		Amount:        algoAmount,
@@ -95,7 +97,7 @@ func (s *service) mapToAccount(ctx context.Context, resAcount algorand.Account, 
 
 		detail, _ := s.api.GetAssetByID(ctx, asset.AssetID)
 
-		assetAmount := toAmount(asset.Amount)
+		assetAmount := s.toAmount(asset.Amount)
 		p := assetAmount * priceRes.Price(coingecko.AlgoCoinID[detail.Asset.Params.Name])
 		assets = append(assets, &shared.Asset{
 			Amount:        assetAmount,
@@ -112,6 +114,6 @@ func (s *service) mapToAccount(ctx context.Context, resAcount algorand.Account, 
 	return account
 }
 
-func toAmount(amount int) float64 {
-	return number.ToFloat(amount, config.Cfg.AlgorandClient.DefaultDecimal)
+func (s *service) toAmount(amount int) float64 {
+	return number.ToFloat(amount, s.cfg.DefaultDecimal)
 }

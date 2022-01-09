@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/external/line/mock_line"
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice"
 	"github.com/golang/mock/gomock"
@@ -96,11 +97,15 @@ type lineServiceMock struct {
 func newBitkubTestSvc(t gomock.TestReporter) (lineservice.ILineService, lineServiceMock, func()) {
 	ctrl := gomock.NewController(t)
 
+	cfg := &config.User{
+		MaxAssetsDisplay: 3,
+	}
+
 	mockSvc := lineServiceMock{
 		mockLine: mock_line.NewMockILine(ctrl),
 	}
 
-	svc := lineservice.NewService(mockSvc.mockLine)
+	svc := lineservice.NewService(mockSvc.mockLine, cfg, "")
 
 	finish := func() {
 		ctrl.Finish()

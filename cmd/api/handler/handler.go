@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice"
 	"github.com/gin-gonic/gin"
@@ -49,7 +48,7 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 	}
 
 	token := event[0].ReplyToken
-	if event[0].Source.UserID != config.Cfg.Line.UserID {
+	if !h.lineSvc.IsOwner(event[0].Source.UserID) {
 		_ = h.lineSvc.ReplyTextMessage(ctx, token, "Not your assets!!")
 		c.JSON(http.StatusSeeOther, gin.H{"error": errors.New("invalid user")})
 		return

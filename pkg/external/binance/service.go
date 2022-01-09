@@ -26,11 +26,13 @@ type IBinance interface {
 
 type service struct {
 	client httpclient.IClient
+	cfg    *config.Binance
 }
 
-func NewBinanceService(client httpclient.IClient) IBinance {
+func NewBinanceService(client httpclient.IClient, cfg *config.Binance) IBinance {
 	return &service{
 		client: client,
+		cfg:    cfg,
 	}
 }
 
@@ -41,9 +43,9 @@ func (s *service) GetAccount(ctx context.Context) (GetAccountResponse, error) {
 		"timestamp": []string{fmt.Sprintf("%d", nowMilli)},
 	}.Encode()
 
-	uri := fmt.Sprintf("%s%s?%s&signature=%s", config.Cfg.Binance.Host, config.Cfg.Binance.GetAccount, query, signRequest([]byte(query)))
+	uri := fmt.Sprintf("%s%s?%s&signature=%s", s.cfg.Host, s.cfg.GetAccount, query, s.signRequest([]byte(query)))
 
-	resp, err := s.client.Get(ctx, uri, generateHeader(), httpclient.WithoutResLog())
+	resp, err := s.client.Get(ctx, uri, s.generateHeader(), httpclient.WithoutResLog())
 	if err != nil {
 		return GetAccountResponse{}, err
 	}
@@ -64,9 +66,9 @@ func (s *service) GetSavingBalance(ctx context.Context) (GetSavingBalanceRespons
 		"timestamp": []string{fmt.Sprintf("%d", nowMilli)},
 	}.Encode()
 
-	uri := fmt.Sprintf("%s%s?%s&signature=%s", config.Cfg.Binance.Host, config.Cfg.Binance.GetSaving, query, signRequest([]byte(query)))
+	uri := fmt.Sprintf("%s%s?%s&signature=%s", s.cfg.Host, s.cfg.GetSaving, query, s.signRequest([]byte(query)))
 
-	resp, err := s.client.Get(ctx, uri, generateHeader())
+	resp, err := s.client.Get(ctx, uri, s.generateHeader())
 	if err != nil {
 		return GetSavingBalanceResponse{}, err
 	}
@@ -82,9 +84,9 @@ func (s *service) GetSavingBalance(ctx context.Context) (GetSavingBalanceRespons
 
 // GetTricker get price
 func (s *service) GetTricker(ctx context.Context) (map[string]float64, error) {
-	uri := fmt.Sprintf("%s%s", config.Cfg.Binance.Host, config.Cfg.Binance.GetTricker)
+	uri := fmt.Sprintf("%s%s", s.cfg.Host, s.cfg.GetTricker)
 
-	resp, err := s.client.Get(ctx, uri, generateHeader(), httpclient.WithoutResLog())
+	resp, err := s.client.Get(ctx, uri, s.generateHeader(), httpclient.WithoutResLog())
 	if err != nil {
 		return nil, err
 	}
@@ -105,8 +107,8 @@ func (s *service) GetTricker(ctx context.Context) (map[string]float64, error) {
 	return tricker, nil
 }
 
-func signRequest(body []byte) string {
-	h := hmac.New(sha256.New, []byte(config.Cfg.Binance.ApiSecret))
+func (s *service) signRequest(body []byte) string {
+	h := hmac.New(sha256.New, []byte(s.cfg.ApiSecret))
 	if body != nil {
 		_, _ = h.Write(body)
 	}
@@ -115,9 +117,9 @@ func signRequest(body []byte) string {
 	return hex.EncodeToString(hmacSigned)
 }
 
-func generateHeader() http.Header {
+func (s *service) generateHeader() http.Header {
 	header := http.Header{}
-	header.Set("X-MBX-APIKEY", config.Cfg.Binance.ApiKey)
+	header.Set("X-MBX-APIKEY", s.cfg.ApiKey)
 	header.Set("Content-Type", "application/json")
 	header.Set("Accept", "application/json")
 
