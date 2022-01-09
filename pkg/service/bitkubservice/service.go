@@ -29,11 +29,15 @@ func (s *service) Type() string {
 }
 
 func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
-	res, err := s.bitkubApi.GetWallet(ctx)
-	if err != nil {
-		return shared.Account{}, err
-	}
-	tricker, err := s.bitkubApi.GetTricker(ctx)
+	// res, err := s.bitkubApi.GetWallet(ctx)
+	// if err != nil {
+	// 	return shared.Account{}, err
+	// }
+	// tricker, err := s.bitkubApi.GetTricker(ctx)
+	// if err != nil {
+	// 	return shared.Account{}, err
+	// }
+	res, tricker, err := s.asyncGetWalletAndTricker(ctx)
 	if err != nil {
 		return shared.Account{}, err
 	}
@@ -73,6 +77,42 @@ func mapToAssets(result map[string]float64) shared.Assets {
 	}
 
 	return assets
+}
+
+func (s *service) asyncGetWalletAndTricker(ctx context.Context) (bitkub.GetWalletResponse, bitkub.GetTrickerResponse, error) {
+	maxConcurrent := 2
+	var (
+		ch      = make(chan error, maxConcurrent)
+		res     bitkub.GetWalletResponse
+		tricker bitkub.GetTrickerResponse
+	)
+	defer close(ch)
+
+	go func() {
+		wallet, err := s.bitkubApi.GetWallet(ctx)
+		if err == nil {
+			res = wallet
+		}
+		ch <- err
+	}()
+
+	go func() {
+		trickerRes, err := s.bitkubApi.GetTricker(ctx)
+		if err == nil {
+			tricker = trickerRes
+		}
+		ch <- err
+	}()
+
+	var err error
+	for i := 0; i < maxConcurrent; i++ {
+		errChan := <-ch
+		if errChan != nil {
+			err = fmt.Errorf("%d: %w", i, errChan)
+		}
+	}
+
+	return res, tricker, err
 }
 
 func toUsd(thb float64, rate float64) float64 {

@@ -21,6 +21,7 @@ func TestService(t *testing.T) {
 			defer finish()
 
 			mockSvc.mockBitkub.EXPECT().GetWallet(ctx).Return(bitkub.GetWalletResponse{}, errors.New("error"))
+			mockSvc.mockBitkub.EXPECT().GetTricker(ctx).Return(bitkub.GetTrickerResponse{}, nil)
 
 			_, err := svc.GetAccount(ctx)
 			require.Error(ttt, err)
