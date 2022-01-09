@@ -36,18 +36,18 @@ func (m *MockIAssetsService) EXPECT() *MockIAssetsServiceMockRecorder {
 }
 
 // GetAccount mocks base method.
-func (m *MockIAssetsService) GetAccount(ctx context.Context) (shared.Account, error) {
+func (m *MockIAssetsService) GetAccount(arg0 context.Context, arg1 shared.GetAccountReq) (shared.Account, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAccount", ctx)
+	ret := m.ctrl.Call(m, "GetAccount", arg0, arg1)
 	ret0, _ := ret[0].(shared.Account)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAccount indicates an expected call of GetAccount.
-func (mr *MockIAssetsServiceMockRecorder) GetAccount(ctx interface{}) *gomock.Call {
+func (mr *MockIAssetsServiceMockRecorder) GetAccount(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccount", reflect.TypeOf((*MockIAssetsService)(nil).GetAccount), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccount", reflect.TypeOf((*MockIAssetsService)(nil).GetAccount), arg0, arg1)
 }
 
 // Type mocks base method.

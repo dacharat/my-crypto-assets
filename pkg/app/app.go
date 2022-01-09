@@ -1,9 +1,6 @@
-package route
+package app
 
 import (
-	"net/http"
-
-	"github.com/dacharat/my-crypto-assets/cmd/api/handler"
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/external/algorand"
 	"github.com/dacharat/my-crypto-assets/pkg/external/binance"
@@ -18,13 +15,15 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/dacharat/my-crypto-assets/pkg/util/httpclient"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-func NewRouter() *gin.Engine {
-	route := gin.Default()
+type App struct {
+	myAssetsSvc myassetsservice.IMyAssetsService
+	lienSvc     lineservice.ILineService
+}
 
+func New() App {
 	client, err := linebot.New(config.Cfg.Line.ChannelSecret, config.Cfg.Line.ChannelAccessToken)
 	if err != nil {
 		panic(err)
@@ -48,18 +47,8 @@ func NewRouter() *gin.Engine {
 	myAssetsSvc := myassetsservice.NewService(assetsServices, priceApi)
 	lineSvc := lineservice.NewService(lineApi)
 
-	h := handler.NewHandler(myAssetsSvc, lineSvc)
-
-	route.GET("", func(c *gin.Context) {
-		c.Status(http.StatusNoContent)
-	})
-	route.GET("/health", func(c *gin.Context) {
-		c.Status(http.StatusNoContent)
-	})
-
-	route.GET("/test", DevMode(), h.GetAccountBalanceHandler)
-	route.POST("/linebot", h.LineCallbackHandler)
-	route.GET("/push", DevMode(), h.LinePushMessageHandler)
-
-	return route
+	return App{
+		myAssetsSvc: myAssetsSvc,
+		lienSvc:     lineSvc,
+	}
 }

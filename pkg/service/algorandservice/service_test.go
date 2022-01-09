@@ -29,7 +29,7 @@ func TestService(t *testing.T) {
 			mockSvc.mockAlgorand.EXPECT().GetAlgodAccountByID(ctx, "123").Return(algorand.Account{}, errors.New("error"))
 			mockSvc.mockCoinGecko.EXPECT().GetPrice(ctx, coingecko.Algo).Return(coingecko.GetPriceResponse{}, nil)
 
-			_, err := svc.GetAccount(ctx)
+			_, err := svc.GetAccount(ctx, shared.GetAccountReq{})
 			require.Error(ttt, err)
 		})
 
@@ -43,7 +43,7 @@ func TestService(t *testing.T) {
 			}, nil)
 			mockSvc.mockCoinGecko.EXPECT().GetPrice(ctx, coingecko.Algo).Return(coingecko.GetPriceResponse{}, nil)
 
-			_, err := svc.GetAccount(ctx)
+			_, err := svc.GetAccount(ctx, shared.GetAccountReq{})
 			require.NoError(ttt, err)
 		})
 	})

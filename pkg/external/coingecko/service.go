@@ -14,6 +14,7 @@ import (
 //go:generate mockgen -source=./service.go -destination=./mock_coingecko/mock_service.go -package=mock_coingecko
 type ICoingecko interface {
 	GetPrice(ctx context.Context, c Chain) (GetPriceResponse, error)
+	GetAllPrice(ctx context.Context) (GetPriceResponse, error)
 }
 
 type service struct {
@@ -28,6 +29,29 @@ func NewCoingeckoService(client httpclient.IClient) ICoingecko {
 
 func (s *service) GetPrice(ctx context.Context, c Chain) (GetPriceResponse, error) {
 	ids := chain[c].IDs()
+	url := fmt.Sprintf("%s%s?ids=%s&vs_currencies=usd", config.Cfg.Coingecko.Host, config.Cfg.Coingecko.GetSimplePrice, url.QueryEscape(strings.Join(ids, ",")))
+
+	resp, err := s.client.Get(ctx, url, nil)
+	if err != nil {
+		return GetPriceResponse{}, err
+	}
+
+	var response GetPriceResponse
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return response, err
+	}
+
+	return response, nil
+}
+
+func (s *service) GetAllPrice(ctx context.Context) (GetPriceResponse, error) {
+	var ids []string
+	for k := range chain {
+		ids = append(ids, chain[k].IDs()...)
+	}
+
 	url := fmt.Sprintf("%s%s?ids=%s&vs_currencies=usd", config.Cfg.Coingecko.Host, config.Cfg.Coingecko.GetSimplePrice, url.QueryEscape(strings.Join(ids, ",")))
 
 	resp, err := s.client.Get(ctx, url, nil)

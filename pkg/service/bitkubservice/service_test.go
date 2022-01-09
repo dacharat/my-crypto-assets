@@ -23,7 +23,7 @@ func TestService(t *testing.T) {
 			mockSvc.mockBitkub.EXPECT().GetWallet(ctx).Return(bitkub.GetWalletResponse{}, errors.New("error"))
 			mockSvc.mockBitkub.EXPECT().GetTricker(ctx).Return(bitkub.GetTrickerResponse{}, nil)
 
-			_, err := svc.GetAccount(ctx)
+			_, err := svc.GetAccount(ctx, shared.GetAccountReq{})
 			require.Error(ttt, err)
 		})
 
@@ -35,7 +35,7 @@ func TestService(t *testing.T) {
 			mockSvc.mockBitkub.EXPECT().GetWallet(ctx).Return(bitkub.GetWalletResponse{}, nil)
 			mockSvc.mockBitkub.EXPECT().GetTricker(ctx).Return(bitkub.GetTrickerResponse{}, errors.New("error"))
 
-			_, err := svc.GetAccount(ctx)
+			_, err := svc.GetAccount(ctx, shared.GetAccountReq{})
 			require.Error(ttt, err)
 		})
 
@@ -47,7 +47,7 @@ func TestService(t *testing.T) {
 			mockSvc.mockBitkub.EXPECT().GetWallet(ctx).Return(bitkub.GetWalletResponse{}, nil)
 			mockSvc.mockBitkub.EXPECT().GetTricker(ctx).Return(bitkub.GetTrickerResponse{}, nil)
 
-			_, err := svc.GetAccount(ctx)
+			_, err := svc.GetAccount(ctx, shared.GetAccountReq{})
 			require.NoError(ttt, err)
 		})
 	})

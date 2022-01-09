@@ -28,15 +28,7 @@ func (s *service) Type() string {
 	return string(shared.Bitkub)
 }
 
-func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
-	// res, err := s.bitkubApi.GetWallet(ctx)
-	// if err != nil {
-	// 	return shared.Account{}, err
-	// }
-	// tricker, err := s.bitkubApi.GetTricker(ctx)
-	// if err != nil {
-	// 	return shared.Account{}, err
-	// }
+func (s *service) GetAccount(ctx context.Context, req shared.GetAccountReq) (shared.Account, error) {
 	res, tricker, err := s.asyncGetWalletAndTricker(ctx)
 	if err != nil {
 		return shared.Account{}, err

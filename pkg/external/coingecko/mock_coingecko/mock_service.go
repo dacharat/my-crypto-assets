@@ -35,6 +35,21 @@ func (m *MockICoingecko) EXPECT() *MockICoingeckoMockRecorder {
 	return m.recorder
 }
 
+// GetAllPrice mocks base method.
+func (m *MockICoingecko) GetAllPrice(ctx context.Context) (coingecko.GetPriceResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllPrice", ctx)
+	ret0, _ := ret[0].(coingecko.GetPriceResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllPrice indicates an expected call of GetAllPrice.
+func (mr *MockICoingeckoMockRecorder) GetAllPrice(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPrice", reflect.TypeOf((*MockICoingecko)(nil).GetAllPrice), ctx)
+}
+
 // GetPrice mocks base method.
 func (m *MockICoingecko) GetPrice(ctx context.Context, c coingecko.Chain) (coingecko.GetPriceResponse, error) {
 	m.ctrl.T.Helper()

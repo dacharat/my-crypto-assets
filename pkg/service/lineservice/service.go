@@ -3,6 +3,7 @@ package lineservice
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/external/line"
@@ -14,6 +15,7 @@ import (
 
 //go:generate mockgen -source=./service.go -destination=./mock_line_service/mock_service.go -package=mock_line_service
 type ILineService interface {
+	ParseRequest(r *http.Request) ([]*linebot.Event, error)
 	SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error
 	ReplyTextMessage(ctx context.Context, token string, message string) error
 	PushMessage(ctx context.Context, accounts []shared.Account) error
@@ -27,6 +29,10 @@ func NewService(lineApi line.ILine) ILineService {
 	return &service{
 		lineApi: lineApi,
 	}
+}
+
+func (s *service) ParseRequest(r *http.Request) ([]*linebot.Event, error) {
+	return s.lineApi.ParseRequest(r)
 }
 
 func (s *service) SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error {

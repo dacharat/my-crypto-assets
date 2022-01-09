@@ -4,6 +4,7 @@ import (
 	"context"
 	"sort"
 
+	"github.com/dacharat/my-crypto-assets/pkg/external/coingecko"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 )
 
@@ -12,8 +13,16 @@ type IMyAssetsService interface {
 	GetAllAssets(ctx context.Context) ([]shared.Account, error)
 }
 
+func NewService(assetSvcs []shared.IAssetsService, cgk coingecko.ICoingecko) IMyAssetsService {
+	return &service{
+		assetSvcs: assetSvcs,
+		cgk:       cgk,
+	}
+}
+
 type service struct {
 	assetSvcs []shared.IAssetsService
+	cgk       coingecko.ICoingecko
 }
 
 type AccountErr struct {
@@ -21,18 +30,20 @@ type AccountErr struct {
 	Err     error
 }
 
-func NewService(assetSvcs ...shared.IAssetsService) IMyAssetsService {
-	return &service{
-		assetSvcs: assetSvcs,
-	}
-}
-
 func (s *service) GetAllAssets(ctx context.Context) ([]shared.Account, error) {
 	c := make(chan AccountErr, len(s.assetSvcs))
 	defer close(c)
 
+	req := shared.GetAccountReq{}
+
 	for _, assetSvc := range s.assetSvcs {
-		go channelFunc(ctx, c, assetSvc.GetAccount)
+		go func(svc shared.IAssetsService) {
+			account, err := svc.GetAccount(ctx, req)
+			c <- AccountErr{
+				Account: account,
+				Err:     err,
+			}
+		}(assetSvc)
 	}
 
 	var data []shared.Account
@@ -50,12 +61,4 @@ func (s *service) GetAllAssets(ctx context.Context) ([]shared.Account, error) {
 	})
 
 	return data, nil
-}
-
-func channelFunc(ctx context.Context, c chan AccountErr, fun func(context.Context) (shared.Account, error)) {
-	account, err := fun(ctx)
-	c <- AccountErr{
-		Account: account,
-		Err:     err,
-	}
 }

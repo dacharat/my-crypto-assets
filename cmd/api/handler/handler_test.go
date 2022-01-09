@@ -48,12 +48,11 @@ func TestHandler(t *testing.T) {
 	t.Run("LineCallbackHandler", func(tt *testing.T) {
 		tt.Run("should return 400 parseReq error", func(ttt *testing.T) {
 			res, c := testutil.NewDefaultContext()
-			mockParseReq = func(r *http.Request) ([]*linebot.Event, error) {
-				return nil, errors.New("error")
-			}
 
-			handler, _, finish := newHandlerTest(ttt)
+			handler, mockHandler, finish := newHandlerTest(ttt)
 			defer finish()
+
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(nil, errors.New("error"))
 
 			handler.LineCallbackHandler(c)
 
@@ -62,12 +61,11 @@ func TestHandler(t *testing.T) {
 
 		tt.Run("should return 200 with no action", func(ttt *testing.T) {
 			res, c := testutil.NewDefaultContext()
-			mockParseReq = func(r *http.Request) ([]*linebot.Event, error) {
-				return nil, nil
-			}
 
-			handler, _, finish := newHandlerTest(ttt)
+			handler, mockHandler, finish := newHandlerTest(ttt)
 			defer finish()
+
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(nil, nil)
 
 			handler.LineCallbackHandler(c)
 
@@ -77,13 +75,11 @@ func TestHandler(t *testing.T) {
 		tt.Run("should return 303 not owner", func(ttt *testing.T) {
 			config.Cfg.Line.UserID = "other"
 			res, c := testutil.NewDefaultContext()
-			mockParseReq = func(r *http.Request) ([]*linebot.Event, error) {
-				return createMockEvents(), nil
-			}
 
 			handler, mockHandler, finish := newHandlerTest(ttt)
 			defer finish()
 
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
 			mockHandler.mockLineSvc.EXPECT().ReplyTextMessage(c.Request.Context(), "reply", "Not your assets!!")
 
 			handler.LineCallbackHandler(c)
@@ -93,13 +89,11 @@ func TestHandler(t *testing.T) {
 
 		tt.Run("should return 500 get all assets", func(ttt *testing.T) {
 			res, c := testutil.NewDefaultContext()
-			mockParseReq = func(r *http.Request) ([]*linebot.Event, error) {
-				return createMockEvents(), nil
-			}
 
 			handler, mockHandler, finish := newHandlerTest(ttt)
 			defer finish()
 
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
 			mockHandler.mockAssetsSvc.EXPECT().GetAllAssets(gomock.Any()).Return(nil, errors.New("error"))
 
 			handler.LineCallbackHandler(c)
@@ -109,15 +103,13 @@ func TestHandler(t *testing.T) {
 
 		tt.Run("should return 500 send flex", func(ttt *testing.T) {
 			res, c := testutil.NewDefaultContext()
-			mockParseReq = func(r *http.Request) ([]*linebot.Event, error) {
-				return createMockEvents(), nil
-			}
 
 			handler, mockHandler, finish := newHandlerTest(ttt)
 			defer finish()
 
 			accounts := []shared.Account{}
 
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
 			mockHandler.mockAssetsSvc.EXPECT().GetAllAssets(gomock.Any()).Return(accounts, nil)
 			mockHandler.mockLineSvc.EXPECT().SendFlexMessage(c.Request.Context(), "reply", accounts).Return(errors.New("error"))
 
@@ -128,15 +120,13 @@ func TestHandler(t *testing.T) {
 
 		tt.Run("should return 200", func(ttt *testing.T) {
 			res, c := testutil.NewDefaultContext()
-			mockParseReq = func(r *http.Request) ([]*linebot.Event, error) {
-				return createMockEvents(), nil
-			}
 
 			handler, mockHandler, finish := newHandlerTest(ttt)
 			defer finish()
 
 			accounts := []shared.Account{}
 
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
 			mockHandler.mockAssetsSvc.EXPECT().GetAllAssets(gomock.Any()).Return(accounts, nil)
 			mockHandler.mockLineSvc.EXPECT().SendFlexMessage(c.Request.Context(), "reply", accounts).Return(nil)
 
@@ -199,10 +189,6 @@ type handlerMock struct {
 	mockLineSvc   *mock_line_service.MockILineService
 }
 
-var mockParseReq = func(r *http.Request) ([]*linebot.Event, error) {
-	return nil, nil
-}
-
 func newHandlerTest(t gomock.TestHelper) (handler.Handler, handlerMock, func()) {
 	ctrl := gomock.NewController(t)
 
@@ -213,13 +199,10 @@ func newHandlerTest(t gomock.TestHelper) (handler.Handler, handlerMock, func()) 
 
 	finish := func() {
 		config.Cfg.Line.UserID = "owner"
-		mockParseReq = func(r *http.Request) ([]*linebot.Event, error) {
-			return nil, nil
-		}
 		ctrl.Finish()
 	}
 
-	handler := handler.NewHandler(mockHandler.mockAssetsSvc, mockHandler.mockLineSvc, mockParseReq)
+	handler := handler.NewHandler(mockHandler.mockAssetsSvc, mockHandler.mockLineSvc)
 
 	return handler, mockHandler, finish
 }
