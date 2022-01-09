@@ -23,7 +23,7 @@ func TestService(t *testing.T) {
 			mockSvc.mockBinance.EXPECT().GetAccount(ctx).Return(binance.GetAccountResponse{}, errors.New("error"))
 			mockSvc.mockBinance.EXPECT().GetTricker(ctx).Return(map[string]float64{}, nil)
 
-			_, err := svc.GetAccount(ctx)
+			_, err := svc.GetAccount(ctx, shared.GetAccountReq{})
 			require.Error(ttt, err)
 		})
 
@@ -35,7 +35,7 @@ func TestService(t *testing.T) {
 			mockSvc.mockBinance.EXPECT().GetAccount(ctx).Return(binance.GetAccountResponse{}, nil)
 			mockSvc.mockBinance.EXPECT().GetTricker(ctx).Return(map[string]float64{}, errors.New("error"))
 
-			_, err := svc.GetAccount(ctx)
+			_, err := svc.GetAccount(ctx, shared.GetAccountReq{})
 			require.Error(ttt, err)
 		})
 
@@ -47,7 +47,7 @@ func TestService(t *testing.T) {
 			mockSvc.mockBinance.EXPECT().GetAccount(ctx).Return(binance.GetAccountResponse{}, nil)
 			mockSvc.mockBinance.EXPECT().GetTricker(ctx).Return(map[string]float64{}, nil)
 
-			_, err := svc.GetAccount(ctx)
+			_, err := svc.GetAccount(ctx, shared.GetAccountReq{})
 			require.NoError(ttt, err)
 		})
 	})

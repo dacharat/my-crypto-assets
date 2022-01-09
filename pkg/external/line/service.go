@@ -2,6 +2,7 @@ package line
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
@@ -9,6 +10,7 @@ import (
 
 //go:generate mockgen -source=./service.go -destination=./mock_line/mock_service.go -package=mock_line
 type ILine interface {
+	ParseRequest(r *http.Request) ([]*linebot.Event, error)
 	SendFlexMessage(ctx context.Context, token string, container *linebot.BubbleContainer) error
 	ReplyTextMessage(ctx context.Context, token string, message string) error
 	PushMessage(ctx context.Context, container *linebot.BubbleContainer) error
@@ -22,6 +24,10 @@ func NewLineService(client *linebot.Client) ILine {
 	return &service{
 		client: client,
 	}
+}
+
+func (s *service) ParseRequest(r *http.Request) ([]*linebot.Event, error) {
+	return s.client.ParseRequest(r)
 }
 
 func (s *service) SendFlexMessage(ctx context.Context, token string, container *linebot.BubbleContainer) error {

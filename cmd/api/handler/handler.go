@@ -8,21 +8,17 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice"
 	"github.com/gin-gonic/gin"
-	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 type Handler struct {
 	assetsSvc myassetsservice.IMyAssetsService
 	lineSvc   lineservice.ILineService
-
-	parseReq func(r *http.Request) ([]*linebot.Event, error)
 }
 
-func NewHandler(assetsSvc myassetsservice.IMyAssetsService, lineSvc lineservice.ILineService, parseReq func(r *http.Request) ([]*linebot.Event, error)) Handler {
+func NewHandler(assetsSvc myassetsservice.IMyAssetsService, lineSvc lineservice.ILineService) Handler {
 	return Handler{
 		assetsSvc: assetsSvc,
 		lineSvc:   lineSvc,
-		parseReq:  parseReq,
 	}
 }
 
@@ -41,7 +37,8 @@ func (h Handler) GetAccountBalanceHandler(c *gin.Context) {
 func (h Handler) LineCallbackHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	event, err := h.parseReq(c.Request)
+	// event, err := h.parseReq(c.Request)
+	event, err := h.lineSvc.ParseRequest(c.Request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return

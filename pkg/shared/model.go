@@ -3,9 +3,10 @@ package shared
 import "sort"
 
 const (
-	Binance  Platform = "Binance"
-	Bitkub   Platform = "Bitkub"
-	Algorand Platform = "Algorand"
+	Algorand    Platform = "Algorand"
+	Binance     Platform = "Binance"
+	Bitkub      Platform = "Bitkub"
+	BitkubChain Platform = "BitkubChain"
 )
 
 type Platform string
@@ -15,6 +16,8 @@ type Account struct {
 	Address    string   `json:"address,omitempty"`
 	Assets     Assets   `json:"assets"`
 	TotalPrice float64  `json:"totalPrice"`
+
+	NeedCgkPrice bool `json:"-"`
 }
 
 type Assets []*Asset
@@ -24,6 +27,10 @@ type Asset struct {
 	Name          string  `json:"name"`
 	Price         float64 `json:"price"`
 	FormatedPrice string  `json:"formatedPrice,omitempty"`
+}
+
+type GetAccountReq struct {
+	WalletAddress string
 }
 
 func (a Assets) TotalPrice() float64 {

@@ -6,10 +6,12 @@ package mock_line_service
 
 import (
 	context "context"
+	http "net/http"
 	reflect "reflect"
 
 	shared "github.com/dacharat/my-crypto-assets/pkg/shared"
 	gomock "github.com/golang/mock/gomock"
+	linebot "github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 // MockILineService is a mock of ILineService interface.
@@ -33,6 +35,21 @@ func NewMockILineService(ctrl *gomock.Controller) *MockILineService {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockILineService) EXPECT() *MockILineServiceMockRecorder {
 	return m.recorder
+}
+
+// ParseRequest mocks base method.
+func (m *MockILineService) ParseRequest(r *http.Request) ([]*linebot.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ParseRequest", r)
+	ret0, _ := ret[0].([]*linebot.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ParseRequest indicates an expected call of ParseRequest.
+func (mr *MockILineServiceMockRecorder) ParseRequest(r interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseRequest", reflect.TypeOf((*MockILineService)(nil).ParseRequest), r)
 }
 
 // PushMessage mocks base method.

@@ -4,7 +4,8 @@ type Chain string
 type CoingeckoMapper map[string]string
 
 const (
-	Algo Chain = "algo"
+	Algo   Chain = "algo"
+	Bitkub Chain = "bitkub"
 )
 
 var (
@@ -13,8 +14,14 @@ var (
 		"ALGO":   "algorand",
 	}
 
+	BitkubCoinID = CoingeckoMapper{
+		"KUB":  "bitkub-coin",
+		"KKUB": "bitkub-coin",
+	}
+
 	chain = map[Chain]CoingeckoMapper{
-		Algo: AlgoCoinID,
+		Algo:   AlgoCoinID,
+		Bitkub: BitkubCoinID,
 	}
 )
 

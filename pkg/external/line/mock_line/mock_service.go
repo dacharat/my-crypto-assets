@@ -6,6 +6,7 @@ package mock_line
 
 import (
 	context "context"
+	http "net/http"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -33,6 +34,21 @@ func NewMockILine(ctrl *gomock.Controller) *MockILine {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockILine) EXPECT() *MockILineMockRecorder {
 	return m.recorder
+}
+
+// ParseRequest mocks base method.
+func (m *MockILine) ParseRequest(r *http.Request) ([]*linebot.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ParseRequest", r)
+	ret0, _ := ret[0].([]*linebot.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ParseRequest indicates an expected call of ParseRequest.
+func (mr *MockILineMockRecorder) ParseRequest(r interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseRequest", reflect.TypeOf((*MockILine)(nil).ParseRequest), r)
 }
 
 // PushMessage mocks base method.
