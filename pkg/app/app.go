@@ -52,3 +52,11 @@ func New() App {
 		lienSvc:     lineSvc,
 	}
 }
+
+func (a App) GetMyAssetsSvc() myassetsservice.IMyAssetsService {
+	return a.myAssetsSvc
+}
+
+func (a App) GetLineSvc() lineservice.ILineService {
+	return a.lienSvc
+}

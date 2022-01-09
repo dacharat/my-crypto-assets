@@ -11,13 +11,15 @@ import (
 	"time"
 
 	"github.com/dacharat/my-crypto-assets/cmd/api/route"
+	"github.com/dacharat/my-crypto-assets/pkg/app"
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 )
 
 func main() {
 	config.NewConfig()
+	a := app.New()
 
-	router := route.NewRouter()
+	router := route.NewRouter(a)
 
 	httpSrv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", config.Cfg.Port),
