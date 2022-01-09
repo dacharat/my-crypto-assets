@@ -37,6 +37,20 @@ func (m *MockILineService) EXPECT() *MockILineServiceMockRecorder {
 	return m.recorder
 }
 
+// IsOwner mocks base method.
+func (m *MockILineService) IsOwner(userId string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsOwner", userId)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsOwner indicates an expected call of IsOwner.
+func (mr *MockILineServiceMockRecorder) IsOwner(userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsOwner", reflect.TypeOf((*MockILineService)(nil).IsOwner), userId)
+}
+
 // ParseRequest mocks base method.
 func (m *MockILineService) ParseRequest(r *http.Request) ([]*linebot.Event, error) {
 	m.ctrl.T.Helper()

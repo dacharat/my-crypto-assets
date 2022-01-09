@@ -4,6 +4,7 @@ import (
 	"context"
 	"sort"
 
+	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/external/coingecko"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 )
@@ -13,16 +14,18 @@ type IMyAssetsService interface {
 	GetAllAssets(ctx context.Context) ([]shared.Account, error)
 }
 
-func NewService(assetSvcs []shared.IAssetsService, cgk coingecko.ICoingecko) IMyAssetsService {
+func NewService(assetSvcs []shared.IAssetsService, cgk coingecko.ICoingecko, cfg *config.User) IMyAssetsService {
 	return &service{
 		assetSvcs: assetSvcs,
 		cgk:       cgk,
+		cfg:       cfg,
 	}
 }
 
 type service struct {
 	assetSvcs []shared.IAssetsService
 	cgk       coingecko.ICoingecko
+	cfg       *config.User
 }
 
 type AccountErr struct {
@@ -34,7 +37,9 @@ func (s *service) GetAllAssets(ctx context.Context) ([]shared.Account, error) {
 	c := make(chan AccountErr, len(s.assetSvcs))
 	defer close(c)
 
-	req := shared.GetAccountReq{}
+	req := shared.GetAccountReq{
+		AlgorandAddress: s.cfg.AlgoAddress,
+	}
 
 	for _, assetSvc := range s.assetSvcs {
 		go func(svc shared.IAssetsService) {

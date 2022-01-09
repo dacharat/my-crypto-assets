@@ -18,27 +18,29 @@ type IAlgoland interface {
 
 type service struct {
 	client httpclient.IClient
+	cfg    *config.Algorand
 }
 
-func NewAlgolandService(client httpclient.IClient) IAlgoland {
+func NewAlgolandService(client httpclient.IClient, cfg *config.Algorand) IAlgoland {
 	return &service{
 		client: client,
+		cfg:    cfg,
 	}
 }
 
 func (s *service) GetAlgodAccountByID(ctx context.Context, account string) (Account, error) {
 	// fallback to free api
-	if config.Cfg.AlgorandClient.UseFreeApi {
+	if s.cfg.UseFreeApi {
 		res, err := s.getAccountByID(ctx, account)
 		return res.Account, err
 	}
 
-	path := fmt.Sprintf(config.Cfg.AlgorandClient.GetAccountPath, account)
-	url := fmt.Sprintf("%s%s", config.Cfg.AlgorandClient.AlgodHost, path)
+	path := fmt.Sprintf(s.cfg.GetAccountPath, account)
+	url := fmt.Sprintf("%s%s", s.cfg.AlgodHost, path)
 
 	header := http.Header{}
-	if config.Cfg.AlgorandClient.ApiKey != "" {
-		header.Set("x-api-key", config.Cfg.AlgorandClient.ApiKey)
+	if s.cfg.ApiKey != "" {
+		header.Set("x-api-key", s.cfg.ApiKey)
 	}
 
 	resp, err := s.client.Get(ctx, url, header)
@@ -57,8 +59,8 @@ func (s *service) GetAlgodAccountByID(ctx context.Context, account string) (Acco
 }
 
 func (s *service) GetAssetByID(ctx context.Context, asset int) (AssetResponse, error) {
-	path := fmt.Sprintf(config.Cfg.AlgorandClient.GetAssetPath, asset)
-	url := fmt.Sprintf("%s%s", config.Cfg.AlgorandClient.Host, path)
+	path := fmt.Sprintf(s.cfg.GetAssetPath, asset)
+	url := fmt.Sprintf("%s%s", s.cfg.Host, path)
 
 	resp, err := s.client.Get(ctx, url, nil)
 	if err != nil {
@@ -75,8 +77,8 @@ func (s *service) GetAssetByID(ctx context.Context, asset int) (AssetResponse, e
 }
 
 func (s *service) getAccountByID(ctx context.Context, account string) (AccountResponse, error) {
-	path := fmt.Sprintf(config.Cfg.AlgorandClient.GetAccountPath, account)
-	url := fmt.Sprintf("%s%s", config.Cfg.AlgorandClient.Host, path)
+	path := fmt.Sprintf(s.cfg.GetAccountPath, account)
+	url := fmt.Sprintf("%s%s", s.cfg.Host, path)
 
 	resp, err := s.client.Get(ctx, url, nil)
 	if err != nil {

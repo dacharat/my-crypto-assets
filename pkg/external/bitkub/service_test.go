@@ -100,11 +100,14 @@ type bitkubSvcMock struct {
 
 func newBitkubTestSvc(t gomock.TestReporter) (bitkub.IBitkub, bitkubSvcMock, func()) {
 	ctrl := gomock.NewController(t)
-	config.Cfg.Bitkub.Host = "https://bitkub.host.com"
-	config.Cfg.Bitkub.GetWallet = "/wallet"
-	config.Cfg.Bitkub.GetTricker = "/tricker"
-	config.Cfg.Bitkub.ApiKey = "api-key"
-	config.Cfg.Bitkub.ApiSecret = "api-scret"
+
+	cfg := &config.Bitkub{
+		Host:       "https://bitkub.host.com",
+		GetWallet:  "/wallet",
+		GetTricker: "/tricker",
+		ApiKey:     "api-key",
+		ApiSecret:  "api-scret",
+	}
 
 	mockSvc := bitkubSvcMock{
 		mockHttpClient: mock_client.NewMockIClient(ctrl),
@@ -114,7 +117,7 @@ func newBitkubTestSvc(t gomock.TestReporter) (bitkub.IBitkub, bitkubSvcMock, fun
 		ctrl.Finish()
 	}
 
-	bitkubSvc := bitkub.NewBitkubService(mockSvc.mockHttpClient)
+	bitkubSvc := bitkub.NewBitkubService(mockSvc.mockHttpClient, cfg)
 
 	return bitkubSvc, mockSvc, finish
 }

@@ -3,13 +3,22 @@ package route
 import (
 	"net/http"
 
-	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/gin-gonic/gin"
 )
 
-func DevMode() gin.HandlerFunc {
+func newMiddleware(devMode bool) middleware {
+	return middleware{
+		devMode: devMode,
+	}
+}
+
+type middleware struct {
+	devMode bool
+}
+
+func (m middleware) DevMode() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !config.Cfg.DevMode {
+		if !m.devMode {
 			c.AbortWithStatus(http.StatusTeapot)
 			return
 		}

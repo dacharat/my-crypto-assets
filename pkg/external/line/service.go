@@ -18,11 +18,13 @@ type ILine interface {
 
 type service struct {
 	client *linebot.Client
+	cfg    *config.Line
 }
 
-func NewLineService(client *linebot.Client) ILine {
+func NewLineService(client *linebot.Client, cfg *config.Line) ILine {
 	return &service{
 		client: client,
+		cfg:    cfg,
 	}
 }
 
@@ -49,7 +51,7 @@ func (s *service) ReplyTextMessage(ctx context.Context, token string, message st
 }
 
 func (s *service) PushMessage(ctx context.Context, container *linebot.BubbleContainer) error {
-	_, err := s.client.PushMessage(config.Cfg.Line.UserID, linebot.NewFlexMessage("test", container)).WithContext(ctx).Do()
+	_, err := s.client.PushMessage(s.cfg.UserID, linebot.NewFlexMessage("test", container)).WithContext(ctx).Do()
 	if err != nil {
 		return err
 	}

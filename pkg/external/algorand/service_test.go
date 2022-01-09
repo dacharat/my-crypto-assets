@@ -56,7 +56,7 @@ func TestService(t *testing.T) {
 			algoSvc, mockSvc, finish := newAlgorandTestSvc(ttt)
 			defer finish()
 
-			config.Cfg.AlgorandClient.UseFreeApi = true
+			mockSvc.mockConfig.UseFreeApi = true
 
 			account := algorand.AccountResponse{}
 			accountStr, _ := json.Marshal(account)
@@ -110,25 +110,30 @@ func TestService(t *testing.T) {
 
 type algorandSvcMock struct {
 	mockHttpClient *mock_client.MockIClient
+	mockConfig     *config.Algorand
 }
 
 func newAlgorandTestSvc(t gomock.TestReporter) (algorand.IAlgoland, algorandSvcMock, func()) {
 	ctrl := gomock.NewController(t)
-	config.Cfg.AlgorandClient.AlgodHost = "https://algorand.host.com"
-	config.Cfg.AlgorandClient.Host = "https://algorand.free-host.com"
-	config.Cfg.AlgorandClient.GetAccountPath = "/account/%s"
-	config.Cfg.AlgorandClient.GetAssetPath = "/assets/%d"
+
+	cfg := &config.Algorand{
+		Host:           "https://algorand.free-host.com",
+		AlgodHost:      "https://algorand.host.com",
+		GetAccountPath: "/account/%s",
+		GetAssetPath:   "/assets/%d",
+	}
 
 	mockSvc := algorandSvcMock{
 		mockHttpClient: mock_client.NewMockIClient(ctrl),
+		mockConfig:     cfg,
 	}
 
 	finish := func() {
-		config.Cfg.AlgorandClient.UseFreeApi = false
+		cfg.UseFreeApi = false
 		ctrl.Finish()
 	}
 
-	algoSvc := algorand.NewAlgolandService(mockSvc.mockHttpClient)
+	algoSvc := algorand.NewAlgolandService(mockSvc.mockHttpClient, cfg)
 
 	return algoSvc, mockSvc, finish
 }

@@ -30,7 +30,7 @@ type Asset struct {
 }
 
 type GetAccountReq struct {
-	WalletAddress string
+	AlgorandAddress string
 }
 
 func (a Assets) TotalPrice() float64 {

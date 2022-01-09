@@ -19,17 +19,19 @@ type ICoingecko interface {
 
 type service struct {
 	client httpclient.IClient
+	cfg    *config.Coingecko
 }
 
-func NewCoingeckoService(client httpclient.IClient) ICoingecko {
+func NewCoingeckoService(client httpclient.IClient, cfg *config.Coingecko) ICoingecko {
 	return &service{
 		client: client,
+		cfg:    cfg,
 	}
 }
 
 func (s *service) GetPrice(ctx context.Context, c Chain) (GetPriceResponse, error) {
 	ids := chain[c].IDs()
-	url := fmt.Sprintf("%s%s?ids=%s&vs_currencies=usd", config.Cfg.Coingecko.Host, config.Cfg.Coingecko.GetSimplePrice, url.QueryEscape(strings.Join(ids, ",")))
+	url := fmt.Sprintf("%s%s?ids=%s&vs_currencies=usd", s.cfg.Host, s.cfg.GetSimplePrice, url.QueryEscape(strings.Join(ids, ",")))
 
 	resp, err := s.client.Get(ctx, url, nil)
 	if err != nil {
@@ -52,7 +54,7 @@ func (s *service) GetAllPrice(ctx context.Context) (GetPriceResponse, error) {
 		ids = append(ids, chain[k].IDs()...)
 	}
 
-	url := fmt.Sprintf("%s%s?ids=%s&vs_currencies=usd", config.Cfg.Coingecko.Host, config.Cfg.Coingecko.GetSimplePrice, url.QueryEscape(strings.Join(ids, ",")))
+	url := fmt.Sprintf("%s%s?ids=%s&vs_currencies=usd", s.cfg.Host, s.cfg.GetSimplePrice, url.QueryEscape(strings.Join(ids, ",")))
 
 	resp, err := s.client.Get(ctx, url, nil)
 	if err != nil {

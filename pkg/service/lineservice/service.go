@@ -15,6 +15,7 @@ import (
 
 //go:generate mockgen -source=./service.go -destination=./mock_line_service/mock_service.go -package=mock_line_service
 type ILineService interface {
+	IsOwner(userId string) bool
 	ParseRequest(r *http.Request) ([]*linebot.Event, error)
 	SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error
 	ReplyTextMessage(ctx context.Context, token string, message string) error
@@ -23,12 +24,20 @@ type ILineService interface {
 
 type service struct {
 	lineApi line.ILine
+	cfg     *config.User
+	ownerId string
 }
 
-func NewService(lineApi line.ILine) ILineService {
+func NewService(lineApi line.ILine, cfg *config.User, ownerId string) ILineService {
 	return &service{
 		lineApi: lineApi,
+		cfg:     cfg,
+		ownerId: ownerId,
 	}
+}
+
+func (s *service) IsOwner(userId string) bool {
+	return s.ownerId == userId
 }
 
 func (s *service) ParseRequest(r *http.Request) ([]*linebot.Event, error) {
@@ -36,7 +45,7 @@ func (s *service) ParseRequest(r *http.Request) ([]*linebot.Event, error) {
 }
 
 func (s *service) SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error {
-	return s.lineApi.SendFlexMessage(ctx, token, createComponent(accounts))
+	return s.lineApi.SendFlexMessage(ctx, token, createComponent(accounts, s.cfg.MaxAssetsDisplay))
 }
 
 func (s *service) ReplyTextMessage(ctx context.Context, token string, message string) error {
@@ -44,10 +53,10 @@ func (s *service) ReplyTextMessage(ctx context.Context, token string, message st
 }
 
 func (s *service) PushMessage(ctx context.Context, accounts []shared.Account) error {
-	return s.lineApi.PushMessage(ctx, createComponent(accounts))
+	return s.lineApi.PushMessage(ctx, createComponent(accounts, s.cfg.MaxAssetsDisplay))
 }
 
-func createComponent(accounts []shared.Account) *linebot.BubbleContainer {
+func createComponent(accounts []shared.Account, maxAsset int) *linebot.BubbleContainer {
 	container := &linebot.BubbleContainer{
 		Type: linebot.FlexContainerTypeBubble,
 		Body: &linebot.BoxComponent{
@@ -64,7 +73,7 @@ func createComponent(accounts []shared.Account) *linebot.BubbleContainer {
 
 	var totalPrice float64
 	for _, account := range accounts {
-		container.Body.Contents = append(container.Body.Contents, createAccountComponent(account))
+		container.Body.Contents = append(container.Body.Contents, createAccountComponent(account, maxAsset))
 		totalPrice += account.TotalPrice
 	}
 
@@ -73,7 +82,7 @@ func createComponent(accounts []shared.Account) *linebot.BubbleContainer {
 	return container
 }
 
-func createAccountComponent(account shared.Account) *linebot.BoxComponent {
+func createAccountComponent(account shared.Account, maxAsset int) *linebot.BoxComponent {
 	box := &linebot.BoxComponent{
 		Type:   linebot.FlexComponentTypeText,
 		Layout: linebot.FlexBoxLayoutTypeVertical,
@@ -104,7 +113,7 @@ func createAccountComponent(account shared.Account) *linebot.BoxComponent {
 		},
 	}
 
-	line := config.Cfg.User.MaxAssetsDisplay
+	line := maxAsset
 	var allAssets bool
 	if len(account.Assets) < line {
 		allAssets = true

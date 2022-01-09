@@ -7,9 +7,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-var Cfg config
-
-type config struct {
+type Config struct {
 	AlgorandClient Algorand
 	Coingecko      Coingecko
 	Bitkub         Bitkub
@@ -65,7 +63,7 @@ type User struct {
 	MaxAssetsDisplay int    `envconfig:"MAX_ASSETS_DISPLAY" default:"3"`
 }
 
-func NewConfig() {
+func NewConfig() *Config {
 	if os.Getenv("ENV") == "dev" {
 		err := godotenv.Load()
 		if err != nil {
@@ -73,5 +71,8 @@ func NewConfig() {
 		}
 	}
 
-	envconfig.MustProcess("", &Cfg)
+	var cfg Config
+	envconfig.MustProcess("", &cfg)
+
+	return &cfg
 }

@@ -16,13 +16,13 @@ import (
 )
 
 func main() {
-	config.NewConfig()
-	a := app.New()
+	cfg := config.NewConfig()
+	a := app.New(cfg)
 
 	router := route.NewRouter(a)
 
 	httpSrv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", config.Cfg.Port),
+		Addr:    fmt.Sprintf(":%s", cfg.Port),
 		Handler: router,
 	}
 
