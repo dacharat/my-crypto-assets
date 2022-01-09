@@ -29,9 +29,20 @@ func (s *service) Type() string {
 }
 
 func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
-	c := make(chan error, 1)
-	var price coingecko.GetPriceResponse
+	res, price, err := s.asyncGetAccountAndPrice(ctx)
+	if err != nil {
+		return shared.Account{}, err
+	}
+
+	return s.mapToAccount(ctx, res, price), nil
+}
+
+func (s *service) asyncGetAccountAndPrice(ctx context.Context) (algorand.Account, coingecko.GetPriceResponse, error) {
+	maxConcurrent := 2
+	c := make(chan error, maxConcurrent)
+	defer close(c)
 	var res algorand.Account
+	var price coingecko.GetPriceResponse
 
 	go func() {
 		priceRes, err := s.price.GetPrice(ctx, coingecko.Algo)
@@ -51,21 +62,16 @@ func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
 	}()
 
 	var err error
-	for i := 0; i < 2; i++ {
+	for i := 0; i < maxConcurrent; i++ {
 		errChan := <-c
 		if errChan != nil {
 			err = fmt.Errorf("%d: %w", i, errChan)
 		}
 	}
-	if err != nil {
-		return shared.Account{}, err
-	}
-
-	return s.mapToAccount(ctx, res, price), nil
+	return res, price, err
 }
 
 func (s *service) mapToAccount(ctx context.Context, resAcount algorand.Account, priceRes coingecko.GetPriceResponse) shared.Account {
-
 	account := shared.Account{
 		Platform: shared.Algorand,
 		Address:  resAcount.Address,

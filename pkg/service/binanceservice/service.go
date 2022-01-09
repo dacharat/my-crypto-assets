@@ -30,11 +30,7 @@ func (s *service) Type() string {
 }
 
 func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
-	res, err := s.binanceApi.GetAccount(ctx)
-	if err != nil {
-		return shared.Account{}, err
-	}
-	tricker, err := s.binanceApi.GetTricker(ctx)
+	res, tricker, err := s.asyncGetAccountAndTricker(ctx)
 	if err != nil {
 		return shared.Account{}, err
 	}
@@ -77,4 +73,40 @@ func (s *service) GetAccount(ctx context.Context) (shared.Account, error) {
 		Assets:     assets.Sort(),
 		TotalPrice: assets.TotalPrice(),
 	}, nil
+}
+
+func (s *service) asyncGetAccountAndTricker(ctx context.Context) (binance.GetAccountResponse, map[string]float64, error) {
+	maxConcurrent := 2
+	var (
+		ch      = make(chan error, maxConcurrent)
+		res     binance.GetAccountResponse
+		tricker map[string]float64
+	)
+	defer close(ch)
+
+	go func() {
+		account, err := s.binanceApi.GetAccount(ctx)
+		if err == nil {
+			res = account
+		}
+		ch <- err
+	}()
+
+	go func() {
+		trickerRes, err := s.binanceApi.GetTricker(ctx)
+		if err == nil {
+			tricker = trickerRes
+		}
+		ch <- err
+	}()
+
+	var err error
+	for i := 0; i < maxConcurrent; i++ {
+		errChan := <-ch
+		if errChan != nil {
+			err = fmt.Errorf("%d: %w", i, errChan)
+		}
+	}
+
+	return res, tricker, err
 }
