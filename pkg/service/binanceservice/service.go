@@ -25,8 +25,8 @@ func NewService(api binance.IBinance) shared.IAssetsService {
 	}
 }
 
-func (s *service) Type() string {
-	return string(shared.Binance)
+func (s *service) Platform() shared.Platform {
+	return shared.Binance
 }
 
 func (s *service) GetAccount(ctx context.Context, req shared.GetAccountReq) (shared.Account, error) {

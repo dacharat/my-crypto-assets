@@ -11,8 +11,6 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/external/algorand"
 	"github.com/dacharat/my-crypto-assets/pkg/external/algorand/mock_algorand"
-	"github.com/dacharat/my-crypto-assets/pkg/external/coingecko"
-	"github.com/dacharat/my-crypto-assets/pkg/external/coingecko/mock_coingecko"
 	"github.com/dacharat/my-crypto-assets/pkg/service/algorandservice"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 )
@@ -25,10 +23,9 @@ func TestService(t *testing.T) {
 			defer finish()
 
 			mockSvc.mockAlgorand.EXPECT().GetAlgodAccountByID(ctx, "123").Return(algorand.Account{}, errors.New("error"))
-			mockSvc.mockCoinGecko.EXPECT().GetPrice(ctx, coingecko.Algo).Return(coingecko.GetPriceResponse{}, nil)
 
 			_, err := svc.GetAccount(ctx, shared.GetAccountReq{
-				AlgorandAddress: "123",
+				WalletAddress: "123",
 			})
 			require.Error(ttt, err)
 		})
@@ -41,7 +38,6 @@ func TestService(t *testing.T) {
 			mockSvc.mockAlgorand.EXPECT().GetAlgodAccountByID(ctx, "").Return(algorand.Account{
 				Address: "",
 			}, nil)
-			mockSvc.mockCoinGecko.EXPECT().GetPrice(ctx, coingecko.Algo).Return(coingecko.GetPriceResponse{}, nil)
 
 			_, err := svc.GetAccount(ctx, shared.GetAccountReq{})
 			require.NoError(ttt, err)
@@ -50,8 +46,7 @@ func TestService(t *testing.T) {
 }
 
 type algorandServiceMock struct {
-	mockAlgorand  *mock_algorand.MockIAlgoland
-	mockCoinGecko *mock_coingecko.MockICoingecko
+	mockAlgorand *mock_algorand.MockIAlgoland
 }
 
 func newAlgorandTestSvc(t gomock.TestReporter) (shared.IAssetsService, algorandServiceMock, func()) {
@@ -62,11 +57,10 @@ func newAlgorandTestSvc(t gomock.TestReporter) (shared.IAssetsService, algorandS
 	}
 
 	mockSvc := algorandServiceMock{
-		mockAlgorand:  mock_algorand.NewMockIAlgoland(ctrl),
-		mockCoinGecko: mock_coingecko.NewMockICoingecko(ctrl),
+		mockAlgorand: mock_algorand.NewMockIAlgoland(ctrl),
 	}
 
-	svc := algorandservice.NewService(mockSvc.mockAlgorand, mockSvc.mockCoinGecko, cfg)
+	svc := algorandservice.NewService(mockSvc.mockAlgorand, cfg)
 
 	finish := func() {
 		ctrl.Finish()

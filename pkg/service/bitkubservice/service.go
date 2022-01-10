@@ -24,8 +24,8 @@ func NewService(api bitkub.IBitkub) shared.IAssetsService {
 	}
 }
 
-func (s *service) Type() string {
-	return string(shared.Bitkub)
+func (s *service) Platform() shared.Platform {
+	return shared.Bitkub
 }
 
 func (s *service) GetAccount(ctx context.Context, req shared.GetAccountReq) (shared.Account, error) {

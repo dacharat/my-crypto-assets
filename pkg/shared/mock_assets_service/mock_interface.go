@@ -50,16 +50,16 @@ func (mr *MockIAssetsServiceMockRecorder) GetAccount(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccount", reflect.TypeOf((*MockIAssetsService)(nil).GetAccount), arg0, arg1)
 }
 
-// Type mocks base method.
-func (m *MockIAssetsService) Type() string {
+// Platform mocks base method.
+func (m *MockIAssetsService) Platform() shared.Platform {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Type")
-	ret0, _ := ret[0].(string)
+	ret := m.ctrl.Call(m, "Platform")
+	ret0, _ := ret[0].(shared.Platform)
 	return ret0
 }
 
-// Type indicates an expected call of Type.
-func (mr *MockIAssetsServiceMockRecorder) Type() *gomock.Call {
+// Platform indicates an expected call of Platform.
+func (mr *MockIAssetsServiceMockRecorder) Platform() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Type", reflect.TypeOf((*MockIAssetsService)(nil).Type))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Platform", reflect.TypeOf((*MockIAssetsService)(nil).Platform))
 }

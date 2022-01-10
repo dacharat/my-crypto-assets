@@ -17,6 +17,7 @@ var (
 	BitkubCoinID = CoingeckoMapper{
 		"KUB":  "bitkub-coin",
 		"KKUB": "bitkub-coin",
+		"KBTC": "bitcoin",
 	}
 
 	chain = map[Chain]CoingeckoMapper{

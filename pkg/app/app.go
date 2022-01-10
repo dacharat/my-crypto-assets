@@ -9,6 +9,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/external/line"
 	"github.com/dacharat/my-crypto-assets/pkg/service/algorandservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/binanceservice"
+	"github.com/dacharat/my-crypto-assets/pkg/service/bitkubchainservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/bitkubservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice"
@@ -31,7 +32,7 @@ func New(cfg *config.Config) App {
 	}
 
 	hc := httpclient.NewClient()
-	_, _ = ethclient.Dial("https://rpc.bitkubchain.io")
+	conn, _ := ethclient.Dial(cfg.ChainRpc.Bitkub)
 
 	algoApi := algorand.NewAlgolandService(hc, &cfg.AlgorandClient)
 	priceApi := coingecko.NewCoingeckoService(hc, &cfg.Coingecko)
@@ -40,9 +41,10 @@ func New(cfg *config.Config) App {
 	lineApi := line.NewLineService(client, &cfg.Line)
 
 	assetsServices := []shared.IAssetsService{
-		algorandservice.NewService(algoApi, priceApi, &cfg.AlgorandClient),
+		algorandservice.NewService(algoApi, &cfg.AlgorandClient),
 		bitkubservice.NewService(bitkubApi),
 		binanceservice.NewService(binancApi),
+		bitkubchainservice.NewService(conn),
 	}
 
 	myAssetsSvc := myassetsservice.NewService(assetsServices, priceApi, &cfg.User)

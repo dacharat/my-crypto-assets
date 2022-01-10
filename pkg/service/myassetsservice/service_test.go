@@ -15,14 +15,14 @@ import (
 
 func TestService(t *testing.T) {
 	t.Run("GetAllAssets", func(tt *testing.T) {
-		tt.Run("", func(ttt *testing.T) {
+		tt.Run("success", func(ttt *testing.T) {
 			ctx := context.Background()
 			svc, mockSvc, finish := newMyAssetsTestSvc(ttt)
 			defer finish()
 
-			mockSvc.mockAssetsService.EXPECT().GetAccount(ctx, shared.GetAccountReq{
-				AlgorandAddress: "algo_address",
-			}).Times(3)
+			mockSvc.mockCoinGecko.EXPECT().GetAllPrice(ctx)
+			mockSvc.mockAssetsService.EXPECT().Platform().AnyTimes()
+			mockSvc.mockAssetsService.EXPECT().GetAccount(gomock.Any(), shared.GetAccountReq{}).Times(3)
 
 			assets, err := svc.GetAllAssets(ctx)
 
