@@ -2,91 +2,43 @@ package algorandservice
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/external/algorand"
-	"github.com/dacharat/my-crypto-assets/pkg/external/coingecko"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/dacharat/my-crypto-assets/pkg/util/number"
-	"github.com/dacharat/my-crypto-assets/pkg/util/price"
 )
 
 type service struct {
-	api   algorand.IAlgoland
-	price coingecko.ICoingecko
-	cfg   *config.Algorand
+	api algorand.IAlgoland
+	cfg *config.Algorand
 }
 
-func NewService(api algorand.IAlgoland, price coingecko.ICoingecko, cfg *config.Algorand) shared.IAssetsService {
+func NewService(api algorand.IAlgoland, cfg *config.Algorand) shared.IAssetsService {
 	return &service{
-		api:   api,
-		price: price,
-		cfg:   cfg,
+		api: api,
+		cfg: cfg,
 	}
 }
 
-func (s *service) Type() string {
-	return string(shared.Algorand)
+func (s *service) Platform() shared.Platform {
+	return shared.Algorand
 }
 
 func (s *service) GetAccount(ctx context.Context, req shared.GetAccountReq) (shared.Account, error) {
-	res, price, err := s.asyncGetAccountAndPrice(ctx, req.AlgorandAddress)
+	res, err := s.api.GetAlgodAccountByID(ctx, req.WalletAddress)
 	if err != nil {
 		return shared.Account{}, err
 	}
 
-	return s.mapToAccount(ctx, res, price), nil
+	return s.mapToAccount(ctx, res), nil
 }
 
-func (s *service) asyncGetAccountAndPrice(ctx context.Context, accountAddress string) (algorand.Account, coingecko.GetPriceResponse, error) {
-	maxConcurrent := 2
-	c := make(chan error, maxConcurrent)
-	defer close(c)
-	var res algorand.Account
-	var price coingecko.GetPriceResponse
-
-	go func() {
-		priceRes, err := s.price.GetPrice(ctx, coingecko.Algo)
-		if err == nil {
-			price = priceRes
-		}
-		c <- err
-	}()
-
-	go func() {
-		// accountAddress := config.Cfg.User.AlgoAddress
-		account, err := s.api.GetAlgodAccountByID(ctx, accountAddress)
-		if err == nil {
-			res = account
-		}
-		c <- err
-	}()
-
-	var err error
-	for i := 0; i < maxConcurrent; i++ {
-		errChan := <-c
-		if errChan != nil {
-			err = fmt.Errorf("%d: %w", i, errChan)
-		}
-	}
-	return res, price, err
-}
-
-func (s *service) mapToAccount(ctx context.Context, resAcount algorand.Account, priceRes coingecko.GetPriceResponse) shared.Account {
-	account := shared.Account{
-		Platform: shared.Algorand,
-		Address:  resAcount.Address,
-	}
-
+func (s *service) mapToAccount(ctx context.Context, resAcount algorand.Account) shared.Account {
 	algoAmount := s.toAmount(resAcount.Amount)
-	algoPrice := algoAmount * priceRes.Price(coingecko.AlgoCoinID["ALGO"])
 	algo := &shared.Asset{
-		Amount:        algoAmount,
-		ID:            0,
-		Name:          "ALGO",
-		Price:         algoPrice,
-		FormatedPrice: price.Dollar(algoPrice),
+		Amount: algoAmount,
+		Name:   "ALGO",
 	}
 
 	assets := make(shared.Assets, 0, len(resAcount.Assets))
@@ -98,20 +50,22 @@ func (s *service) mapToAccount(ctx context.Context, resAcount algorand.Account, 
 		detail, _ := s.api.GetAssetByID(ctx, asset.AssetID)
 
 		assetAmount := s.toAmount(asset.Amount)
-		p := assetAmount * priceRes.Price(coingecko.AlgoCoinID[detail.Asset.Params.Name])
 		assets = append(assets, &shared.Asset{
-			Amount:        assetAmount,
-			ID:            asset.AssetID,
-			Name:          detail.Asset.Params.Name,
-			Price:         p,
-			FormatedPrice: price.Dollar(p),
+			Amount: assetAmount,
+			ID:     asset.AssetID,
+			Name:   detail.Asset.Params.Name,
 		})
 	}
 
-	account.Assets = append(shared.Assets{algo}, assets...)
-	account.TotalPrice = account.Assets.TotalPrice()
+	assets = append(assets, algo)
 
-	return account
+	return shared.Account{
+		Platform:     shared.Algorand,
+		Address:      resAcount.Address,
+		Assets:       assets,
+		TotalPrice:   assets.TotalPrice(),
+		NeedCgkPrice: true,
+	}
 }
 
 func (s *service) toAmount(amount int) float64 {

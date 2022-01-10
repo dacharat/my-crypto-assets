@@ -12,6 +12,7 @@ type Config struct {
 	Coingecko      Coingecko
 	Bitkub         Bitkub
 	Binance        Binance
+	ChainRpc       ChainRpc
 	Line           Line
 	User           User
 	DevMode        bool   `envconfig:"DEV_MODE" default:"false"`
@@ -52,6 +53,10 @@ type Binance struct {
 	GetTricker string `envconfig:"BINANCE_GET_TRICKER" default:"/api/v3/ticker/price"`
 }
 
+type ChainRpc struct {
+	Bitkub string `envconfig:"RPC_BITKUB_CLIENT" default:"https://rpc.bitkubchain.io"`
+}
+
 type Line struct {
 	UserID             string `envconfig:"LINE_USER_ID" required:"true"`
 	ChannelSecret      string `envconfig:"LINE_CHANNEL_SECRET" required:"true"`
@@ -60,6 +65,7 @@ type Line struct {
 
 type User struct {
 	AlgoAddress      string `envconfig:"MY_ALGO_ADDRESS" required:"true"`
+	BitkubAddress    string `envconfig:"MY_BITKUB_ADDRESS" required:"true"`
 	MaxAssetsDisplay int    `envconfig:"MAX_ASSETS_DISPLAY" default:"3"`
 }
 

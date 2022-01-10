@@ -9,6 +9,11 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 )
 
+var platformMapper map[shared.Platform]coingecko.CoingeckoMapper = map[shared.Platform]coingecko.CoingeckoMapper{
+	shared.Algorand:    coingecko.AlgoCoinID,
+	shared.BitkubChain: coingecko.BitkubCoinID,
+}
+
 //go:generate mockgen -source=./service.go -destination=./mock_my_assets_service/mock_service.go -package=mock_my_assets_service
 type IMyAssetsService interface {
 	GetAllAssets(ctx context.Context) ([]shared.Account, error)
@@ -34,15 +39,60 @@ type AccountErr struct {
 }
 
 func (s *service) GetAllAssets(ctx context.Context) ([]shared.Account, error) {
+	// TODO: goroutine
+	gckPrice, err := s.cgk.GetAllPrice(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := s.asyncGetAccount(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// re assign account
+	account := make([]shared.Account, len(data))
+	for i, d := range data {
+		if !d.NeedCgkPrice {
+			account[i] = d
+			continue
+		}
+
+		for _, asset := range d.Assets {
+			price := gckPrice.Price(platformMapper[d.Platform][asset.Name])
+			asset.Price = price * asset.Amount
+		}
+
+		account[i] = shared.Account{
+			Platform:   d.Platform,
+			Address:    d.Address,
+			Assets:     d.Assets.Sort(),
+			TotalPrice: d.Assets.TotalPrice(),
+		}
+	}
+
+	// sort account by platform
+	sort.Slice(account, func(i, j int) bool {
+		return string(account[i].Platform) < string(account[j].Platform)
+	})
+
+	return account, nil
+}
+
+func (s *service) asyncGetAccount(ctx context.Context) ([]shared.Account, error) {
 	c := make(chan AccountErr, len(s.assetSvcs))
 	defer close(c)
 
-	req := shared.GetAccountReq{
-		AlgorandAddress: s.cfg.AlgoAddress,
-	}
-
 	for _, assetSvc := range s.assetSvcs {
 		go func(svc shared.IAssetsService) {
+			req := shared.GetAccountReq{}
+			switch svc.Platform() {
+			case shared.Algorand:
+				req.WalletAddress = s.cfg.AlgoAddress
+			case shared.BitkubChain:
+				req.WalletAddress = s.cfg.BitkubAddress
+			}
+
 			account, err := svc.GetAccount(ctx, req)
 			c <- AccountErr{
 				Account: account,
@@ -59,11 +109,6 @@ func (s *service) GetAllAssets(ctx context.Context) ([]shared.Account, error) {
 		}
 		data = append(data, result.Account)
 	}
-
-	// sort account by platform
-	sort.Slice(data, func(i, j int) bool {
-		return string(data[i].Platform) < string(data[j].Platform)
-	})
 
 	return data, nil
 }
