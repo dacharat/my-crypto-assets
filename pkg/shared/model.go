@@ -7,6 +7,7 @@ const (
 	Binance     Platform = "Binance"
 	Bitkub      Platform = "Bitkub"
 	BitkubChain Platform = "BitkubChain"
+	ElrondChain Platform = "ElrondChain"
 )
 
 type Platform string

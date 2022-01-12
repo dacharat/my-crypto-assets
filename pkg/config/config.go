@@ -13,6 +13,7 @@ type Config struct {
 	Bitkub         Bitkub
 	Binance        Binance
 	ChainRpc       ChainRpc
+	Elrond         Elrond
 	Line           Line
 	User           User
 	DevMode        bool   `envconfig:"DEV_MODE" default:"false"`
@@ -57,6 +58,14 @@ type ChainRpc struct {
 	Bitkub string `envconfig:"RPC_BITKUB_CLIENT" default:"https://rpc.bitkubchain.io"`
 }
 
+type Elrond struct {
+	Host                  string `envconfig:"ELROND_HOST" required:"true"`
+	DelegationHost        string `envconfig:"ELROND_DELEGATION_HOST" required:"true"`
+	GetAccount            string `envconfig:"ELROND_GET_ACCOUNT" default:"/accounts/%s"`
+	GetAccountDelegations string `envconfig:"ELROND_GET_ACCOUNT_DELEGATIONS" default:"/accounts/%s/delegations"`
+	GetAccountNfts        string `envconfig:"ELROND_GET_ACCOUNT_NFTS" default:"/accounts/%s/nfts"`
+}
+
 type Line struct {
 	UserID             string `envconfig:"LINE_USER_ID" required:"true"`
 	ChannelSecret      string `envconfig:"LINE_CHANNEL_SECRET" required:"true"`
@@ -66,6 +75,7 @@ type Line struct {
 type User struct {
 	AlgoAddress      string `envconfig:"MY_ALGO_ADDRESS" required:"true"`
 	BitkubAddress    string `envconfig:"MY_BITKUB_ADDRESS" required:"true"`
+	ElrondAddress    string `envconfig:"MY_ELROND_ADDRESS" required:"true"`
 	MaxAssetsDisplay int    `envconfig:"MAX_ASSETS_DISPLAY" default:"3"`
 }
 

@@ -6,11 +6,13 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/external/binance"
 	"github.com/dacharat/my-crypto-assets/pkg/external/bitkub"
 	"github.com/dacharat/my-crypto-assets/pkg/external/coingecko"
+	"github.com/dacharat/my-crypto-assets/pkg/external/elrond"
 	"github.com/dacharat/my-crypto-assets/pkg/external/line"
 	"github.com/dacharat/my-crypto-assets/pkg/service/algorandservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/binanceservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/bitkubchainservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/bitkubservice"
+	"github.com/dacharat/my-crypto-assets/pkg/service/elrondservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
@@ -38,6 +40,7 @@ func New(cfg *config.Config) App {
 	priceApi := coingecko.NewCoingeckoService(hc, &cfg.Coingecko)
 	bitkubApi := bitkub.NewBitkubService(hc, &cfg.Bitkub)
 	binancApi := binance.NewBinanceService(hc, &cfg.Binance)
+	elrondApi := elrond.NewService(hc, &cfg.Elrond)
 	lineApi := line.NewLineService(client, &cfg.Line)
 
 	assetsServices := []shared.IAssetsService{
@@ -45,6 +48,7 @@ func New(cfg *config.Config) App {
 		bitkubservice.NewService(bitkubApi),
 		binanceservice.NewService(binancApi),
 		bitkubchainservice.NewService(conn),
+		elrondservice.NewService(elrondApi),
 	}
 
 	myAssetsSvc := myassetsservice.NewService(assetsServices, priceApi, &cfg.User)

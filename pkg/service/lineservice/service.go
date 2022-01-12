@@ -142,7 +142,7 @@ func createAssetComponent(asset *shared.Asset) *linebot.BoxComponent {
 				Contents: []linebot.FlexComponent{
 					&linebot.TextComponent{
 						Type:        linebot.FlexComponentTypeText,
-						Text:        fmt.Sprintf("%.2f %s", asset.Amount, asset.Name),
+						Text:        fmt.Sprintf("%.3f %s", asset.Amount, asset.Name),
 						Flex:        pointer.NewInt(8),
 						Color:       "#f5f7f8",
 						Size:        linebot.FlexTextSizeTypeXs,
