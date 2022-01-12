@@ -74,7 +74,7 @@ func (h Handler) LinePushMessageHandler(c *gin.Context) {
 
 	data, err := h.assetsSvc.GetAllAssets(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

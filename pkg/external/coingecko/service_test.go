@@ -17,7 +17,7 @@ import (
 )
 
 func TestService(t *testing.T) {
-	t.Run("GetWallet", func(tt *testing.T) {
+	t.Run("GetPrice", func(tt *testing.T) {
 		tt.Run("should get error", func(ttt *testing.T) {
 			ctx := context.Background()
 			coingeckoSvc, mockSvc, finish := newCoingeckoTestSvc(ttt)
@@ -47,6 +47,41 @@ func TestService(t *testing.T) {
 				Return(createHttpResponse(http.StatusOK, string(cgkStr)), nil)
 
 			_, err := coingeckoSvc.GetPrice(ctx, coingecko.Algo)
+
+			require.NoError(ttt, err)
+		})
+	})
+
+	t.Run("GetAllPrice", func(tt *testing.T) {
+		tt.Run("should get error", func(ttt *testing.T) {
+			ctx := context.Background()
+			coingeckoSvc, mockSvc, finish := newCoingeckoTestSvc(ttt)
+			defer finish()
+
+			mockSvc.mockHttpClient.
+				EXPECT().
+				Get(ctx, gomock.Any(), nil).
+				Return(nil, errors.New("error"))
+
+			_, err := coingeckoSvc.GetAllPrice(ctx)
+
+			require.Error(ttt, err)
+		})
+
+		tt.Run("should get success", func(ttt *testing.T) {
+			ctx := context.Background()
+			coingeckoSvc, mockSvc, finish := newCoingeckoTestSvc(ttt)
+			defer finish()
+
+			cgk := coingecko.GetPriceResponse{}
+			cgkStr, _ := json.Marshal(cgk)
+
+			mockSvc.mockHttpClient.
+				EXPECT().
+				Get(ctx, gomock.Any(), nil).
+				Return(createHttpResponse(http.StatusOK, string(cgkStr)), nil)
+
+			_, err := coingeckoSvc.GetAllPrice(ctx)
 
 			require.NoError(ttt, err)
 		})
