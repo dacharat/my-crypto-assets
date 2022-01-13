@@ -21,6 +21,7 @@ func TestService(t *testing.T) {
 			defer finish()
 
 			mockSvc.mockElrond.EXPECT().GetAccount(ctx, "elrond_address").Return(elrond.GetAccountResponse{}, errors.New("error"))
+			mockSvc.mockElrond.EXPECT().GetAccountToken(ctx, "elrond_address").Return([]elrond.GetAccountTokenResponse{}, errors.New("error"))
 			mockSvc.mockElrond.EXPECT().GetAccountDelegation(ctx, "elrond_address").Return([]elrond.GetAccountDelegationResponse{}, nil)
 
 			_, err := svc.GetAccount(ctx, shared.GetAccountReq{
@@ -35,6 +36,7 @@ func TestService(t *testing.T) {
 			defer finish()
 
 			mockSvc.mockElrond.EXPECT().GetAccount(ctx, "elrond_address").Return(elrond.GetAccountResponse{}, nil)
+			mockSvc.mockElrond.EXPECT().GetAccountToken(ctx, "elrond_address").Return([]elrond.GetAccountTokenResponse{}, nil)
 			mockSvc.mockElrond.EXPECT().GetAccountDelegation(ctx, "elrond_address").Return([]elrond.GetAccountDelegationResponse{}, errors.New("error"))
 
 			_, err := svc.GetAccount(ctx, shared.GetAccountReq{
@@ -49,6 +51,7 @@ func TestService(t *testing.T) {
 			defer finish()
 
 			mockSvc.mockElrond.EXPECT().GetAccount(ctx, "elrond_address").Return(elrond.GetAccountResponse{}, nil)
+			mockSvc.mockElrond.EXPECT().GetAccountToken(ctx, "elrond_address").Return([]elrond.GetAccountTokenResponse{}, nil)
 			mockSvc.mockElrond.EXPECT().GetAccountDelegation(ctx, "elrond_address").Return([]elrond.GetAccountDelegationResponse{}, nil)
 
 			_, err := svc.GetAccount(ctx, shared.GetAccountReq{

@@ -24,6 +24,9 @@ var (
 	ElrondCoinID = CoingeckoMapper{
 		"EGLD":       "elrond-erd-2",
 		"DELEG-EGLD": "elrond-erd-2",
+		"RIDE":       "holoride",
+		"USDC":       "usd-coin",
+		"MEX":        "maiar-dex",
 	}
 
 	chain = map[Chain]CoingeckoMapper{
