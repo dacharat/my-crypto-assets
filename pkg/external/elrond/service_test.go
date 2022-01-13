@@ -38,15 +38,50 @@ func TestService(t *testing.T) {
 			coingeckoSvc, mockSvc, finish := newElrondTestSvc(ttt)
 			defer finish()
 
-			cgk := elrond.GetAccountResponse{}
-			cgkStr, _ := json.Marshal(cgk)
+			account := elrond.GetAccountResponse{}
+			accountStr, _ := json.Marshal(account)
 
 			mockSvc.mockHttpClient.
 				EXPECT().
 				Get(ctx, "https://elrond.host.com/account/elrond_address", nil, gomock.Any()).
-				Return(createHttpResponse(http.StatusOK, string(cgkStr)), nil)
+				Return(createHttpResponse(http.StatusOK, string(accountStr)), nil)
 
 			_, err := coingeckoSvc.GetAccount(ctx, "elrond_address")
+
+			require.NoError(ttt, err)
+		})
+	})
+
+	t.Run("GetAccountToken", func(tt *testing.T) {
+		tt.Run("should get error", func(ttt *testing.T) {
+			ctx := context.Background()
+			elrondSvc, mockSvc, finish := newElrondTestSvc(ttt)
+			defer finish()
+
+			mockSvc.mockHttpClient.
+				EXPECT().
+				Get(ctx, "https://elrond.host.com/account/elrond_address/tokens", nil, gomock.Any()).
+				Return(nil, errors.New("error"))
+
+			_, err := elrondSvc.GetAccountToken(ctx, "elrond_address")
+
+			require.Error(ttt, err)
+		})
+
+		tt.Run("should get success", func(ttt *testing.T) {
+			ctx := context.Background()
+			coingeckoSvc, mockSvc, finish := newElrondTestSvc(ttt)
+			defer finish()
+
+			account := []elrond.GetAccountTokenResponse{}
+			accountStr, _ := json.Marshal(account)
+
+			mockSvc.mockHttpClient.
+				EXPECT().
+				Get(ctx, "https://elrond.host.com/account/elrond_address/tokens", nil, gomock.Any()).
+				Return(createHttpResponse(http.StatusOK, string(accountStr)), nil)
+
+			_, err := coingeckoSvc.GetAccountToken(ctx, "elrond_address")
 
 			require.NoError(ttt, err)
 		})
@@ -73,13 +108,13 @@ func TestService(t *testing.T) {
 			coingeckoSvc, mockSvc, finish := newElrondTestSvc(ttt)
 			defer finish()
 
-			cgk := []elrond.GetAccountDelegationResponse{}
-			cgkStr, _ := json.Marshal(cgk)
+			account := []elrond.GetAccountDelegationResponse{}
+			accountStr, _ := json.Marshal(account)
 
 			mockSvc.mockHttpClient.
 				EXPECT().
 				Get(ctx, "https://delegations.elrond.host.com/account/elrond_address/delagations", nil, gomock.Any()).
-				Return(createHttpResponse(http.StatusOK, string(cgkStr)), nil)
+				Return(createHttpResponse(http.StatusOK, string(accountStr)), nil)
 
 			_, err := coingeckoSvc.GetAccountDelegation(ctx, "elrond_address")
 
@@ -108,13 +143,13 @@ func TestService(t *testing.T) {
 			coingeckoSvc, mockSvc, finish := newElrondTestSvc(ttt)
 			defer finish()
 
-			cgk := []elrond.GetAccountNftResponse{}
-			cgkStr, _ := json.Marshal(cgk)
+			account := []elrond.GetAccountNftResponse{}
+			accountStr, _ := json.Marshal(account)
 
 			mockSvc.mockHttpClient.
 				EXPECT().
 				Get(ctx, "https://elrond.host.com/account/elrond_address/nfts?type=MetaESDT", nil, gomock.Any()).
-				Return(createHttpResponse(http.StatusOK, string(cgkStr)), nil)
+				Return(createHttpResponse(http.StatusOK, string(accountStr)), nil)
 
 			_, err := coingeckoSvc.GetAccountNfts(ctx, "elrond_address")
 
@@ -134,6 +169,7 @@ func newElrondTestSvc(t gomock.TestReporter) (elrond.IElrond, elrondSvcMock, fun
 		Host:                  "https://elrond.host.com",
 		DelegationHost:        "https://delegations.elrond.host.com",
 		GetAccount:            "/account/%s",
+		GetAccountTokens:      "/account/%s/tokens",
 		GetAccountDelegations: "/account/%s/delagations",
 		GetAccountNfts:        "/account/%s/nfts",
 	}

@@ -79,3 +79,18 @@ func (mr *MockIElrondMockRecorder) GetAccountNfts(ctx, address interface{}) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccountNfts", reflect.TypeOf((*MockIElrond)(nil).GetAccountNfts), ctx, address)
 }
+
+// GetAccountToken mocks base method.
+func (m *MockIElrond) GetAccountToken(ctx context.Context, address string) ([]elrond.GetAccountTokenResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAccountToken", ctx, address)
+	ret0, _ := ret[0].([]elrond.GetAccountTokenResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAccountToken indicates an expected call of GetAccountToken.
+func (mr *MockIElrondMockRecorder) GetAccountToken(ctx, address interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccountToken", reflect.TypeOf((*MockIElrond)(nil).GetAccountToken), ctx, address)
+}

@@ -12,6 +12,7 @@ import (
 //go:generate mockgen -source=./service.go -destination=./mock_elrond/mock_service.go -package=mock_elrond
 type IElrond interface {
 	GetAccount(ctx context.Context, address string) (GetAccountResponse, error)
+	GetAccountToken(ctx context.Context, address string) ([]GetAccountTokenResponse, error)
 	GetAccountDelegation(ctx context.Context, address string) ([]GetAccountDelegationResponse, error)
 	GetAccountNfts(ctx context.Context, address string) ([]GetAccountNftResponse, error)
 }
@@ -38,6 +39,25 @@ func (s *service) GetAccount(ctx context.Context, address string) (GetAccountRes
 	}
 
 	var response GetAccountResponse
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return response, err
+	}
+
+	return response, nil
+}
+
+func (s *service) GetAccountToken(ctx context.Context, address string) ([]GetAccountTokenResponse, error) {
+	path := fmt.Sprintf(s.cfg.GetAccountTokens, address)
+	url := fmt.Sprintf("%s%s", s.cfg.Host, path)
+
+	resp, err := s.client.Get(ctx, url, nil, httpclient.WithoutResLog())
+	if err != nil {
+		return nil, err
+	}
+
+	var response []GetAccountTokenResponse
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {

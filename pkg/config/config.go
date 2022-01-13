@@ -62,6 +62,7 @@ type Elrond struct {
 	Host                  string `envconfig:"ELROND_HOST" required:"true"`
 	DelegationHost        string `envconfig:"ELROND_DELEGATION_HOST" required:"true"`
 	GetAccount            string `envconfig:"ELROND_GET_ACCOUNT" default:"/accounts/%s"`
+	GetAccountTokens      string `envconfig:"ELROND_GET_ACCOUNT_TOKENS" default:"/accounts/%s/tokens"`
 	GetAccountDelegations string `envconfig:"ELROND_GET_ACCOUNT_DELEGATIONS" default:"/accounts/%s/delegations"`
 	GetAccountNfts        string `envconfig:"ELROND_GET_ACCOUNT_NFTS" default:"/accounts/%s/nfts"`
 }

@@ -22,6 +22,36 @@ type GetAccountResponse struct {
 	} `json:"scamInfo"`
 }
 
+type GetAccountTokenResponse struct {
+	Identifier string `json:"identifier"`
+	Name       string `json:"name"`
+	Ticker     string `json:"ticker"`
+	Owner      string `json:"owner"`
+	Minted     string `json:"minted"`
+	Burnt      string `json:"burnt"`
+	Decimals   int    `json:"decimals"`
+	IsPaused   bool   `json:"isPaused"`
+	Assets     struct {
+		Website         string `json:"website"`
+		Description     string `json:"description"`
+		LedgerSignature string `json:"ledgerSignature"`
+		Social          struct {
+			Twitter string `json:"twitter"`
+		} `json:"social"`
+		Status string `json:"status"`
+		PngURL string `json:"pngUrl"`
+		SvgURL string `json:"svgUrl"`
+	} `json:"assets"`
+	CanUpgrade     bool   `json:"canUpgrade"`
+	CanMint        bool   `json:"canMint"`
+	CanBurn        bool   `json:"canBurn"`
+	CanChangeOwner bool   `json:"canChangeOwner"`
+	CanPause       bool   `json:"canPause"`
+	CanFreeze      bool   `json:"canFreeze"`
+	CanWipe        bool   `json:"canWipe"`
+	Balance        string `json:"balance"`
+}
+
 type GetAccountDelegationResponse struct {
 	Address             string        `json:"address"`
 	Contract            string        `json:"contract"`

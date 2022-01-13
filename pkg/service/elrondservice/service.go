@@ -28,12 +28,13 @@ func (s *service) Platform() shared.Platform {
 }
 
 func (s *service) GetAccount(ctx context.Context, req shared.GetAccountReq) (shared.Account, error) {
-	acc, dele, err := s.asyncFetchAccount(ctx, req.WalletAddress)
+	acc, tokens, dele, err := s.asyncFetchAccount(ctx, req.WalletAddress)
 	if err != nil {
 		return shared.Account{}, err
 	}
 
 	assets := mapDelegationToAsset(dele)
+	assets = append(assets, mapTokensToAsset(tokens)...)
 	assets = append(assets, mapAccountToAsset(acc))
 
 	return shared.Account{
@@ -44,11 +45,12 @@ func (s *service) GetAccount(ctx context.Context, req shared.GetAccountReq) (sha
 	}, nil
 }
 
-func (s *service) asyncFetchAccount(ctx context.Context, address string) (elrond.GetAccountResponse, []elrond.GetAccountDelegationResponse, error) {
-	maxConcurrent := 2
+func (s *service) asyncFetchAccount(ctx context.Context, address string) (elrond.GetAccountResponse, []elrond.GetAccountTokenResponse, []elrond.GetAccountDelegationResponse, error) {
+	maxConcurrent := 3
 	var (
 		ch          = make(chan error, maxConcurrent)
 		account     elrond.GetAccountResponse
+		tokens      []elrond.GetAccountTokenResponse
 		delegations []elrond.GetAccountDelegationResponse
 	)
 
@@ -56,6 +58,14 @@ func (s *service) asyncFetchAccount(ctx context.Context, address string) (elrond
 		acc, err := s.elrondApi.GetAccount(ctx, address)
 		if err == nil {
 			account = acc
+		}
+		ch <- err
+	}()
+
+	go func() {
+		t, err := s.elrondApi.GetAccountToken(ctx, address)
+		if err == nil {
+			tokens = t
 		}
 		ch <- err
 	}()
@@ -76,7 +86,7 @@ func (s *service) asyncFetchAccount(ctx context.Context, address string) (elrond
 		}
 	}
 
-	return account, delegations, err
+	return account, tokens, delegations, err
 }
 
 func mapAccountToAsset(account elrond.GetAccountResponse) *shared.Asset {
@@ -85,6 +95,19 @@ func mapAccountToAsset(account elrond.GetAccountResponse) *shared.Asset {
 		Name:   "EGLD",
 		Amount: number.BigIntToFloat(big.NewInt(amount), decimal),
 	}
+}
+
+func mapTokensToAsset(tokens []elrond.GetAccountTokenResponse) shared.Assets {
+	assets := make(shared.Assets, len(tokens))
+	for i, token := range tokens {
+		balance, _ := strconv.ParseInt(token.Balance, 10, 64)
+		assets[i] = &shared.Asset{
+			Name:   token.Ticker,
+			Amount: number.BigIntToFloat(big.NewInt(balance), token.Decimals),
+		}
+	}
+
+	return assets
 }
 
 func mapDelegationToAsset(delegations []elrond.GetAccountDelegationResponse) shared.Assets {
