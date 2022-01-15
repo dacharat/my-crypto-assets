@@ -13,6 +13,19 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
+const (
+	startBgColor = "#272c34"
+	endBgColor   = "#242c34"
+
+	yelloColor     = "#E5C07B"
+	redColor       = "#d8474e"
+	greenColor     = "#4fb973"
+	blueGreenColor = "#00bdc7"
+	grayColor      = "#A6B5C5"
+	blueColor      = "#38acf5"
+	// purpleColor    = "#9860dd"
+)
+
 //go:generate mockgen -source=./service.go -destination=./mock_line_service/mock_service.go -package=mock_line_service
 type ILineService interface {
 	IsOwner(userId string) bool
@@ -65,8 +78,8 @@ func createComponent(accounts []shared.Account, maxAsset int) *linebot.BubbleCon
 			Background: &linebot.BoxBackground{
 				Type:       linebot.FlexBoxBackgroundTypeLinearGradient,
 				Angle:      "90deg",
-				StartColor: "#29323c",
-				EndColor:   "#37434f",
+				StartColor: startBgColor,
+				EndColor:   endBgColor,
 			},
 		},
 	}
@@ -83,20 +96,25 @@ func createComponent(accounts []shared.Account, maxAsset int) *linebot.BubbleCon
 }
 
 func createAccountComponent(account shared.Account, maxAsset int) *linebot.BoxComponent {
+	title := string(account.Platform)
+	// if account.Address != "" && len(account.Address) > 10 {
+	// 	title = fmt.Sprintf("%s(%s...%s)", string(account.Platform), account.Address[:5], account.Address[len(account.Address)-4:])
+	// }
 	box := &linebot.BoxComponent{
-		Type:   linebot.FlexComponentTypeText,
-		Layout: linebot.FlexBoxLayoutTypeVertical,
+		Type:          linebot.FlexComponentTypeText,
+		Layout:        linebot.FlexBoxLayoutTypeVertical,
+		PaddingBottom: "5px",
 		Contents: []linebot.FlexComponent{
 			&linebot.BoxComponent{
-				Type:       linebot.FlexComponentTypeText,
-				Layout:     linebot.FlexBoxLayoutTypeHorizontal,
-				PaddingTop: "8px",
+				Type:   linebot.FlexComponentTypeText,
+				Layout: linebot.FlexBoxLayoutTypeHorizontal,
 				Contents: []linebot.FlexComponent{
 					&linebot.TextComponent{
 						Type:   linebot.FlexComponentTypeText,
-						Text:   string(account.Platform),
+						Text:   title,
 						Flex:   pointer.NewInt(8),
-						Color:  "#436AA9",
+						Color:  redColor,
+						Size:   linebot.FlexTextSizeTypeMd,
 						Weight: linebot.FlexTextWeightTypeBold,
 						Align:  linebot.FlexComponentAlignTypeStart,
 					},
@@ -104,7 +122,8 @@ func createAccountComponent(account shared.Account, maxAsset int) *linebot.BoxCo
 						Type:   linebot.FlexComponentTypeText,
 						Text:   price.Dollar(account.TotalPrice),
 						Flex:   pointer.NewInt(4),
-						Color:  "#436AA9",
+						Color:  blueGreenColor,
+						Size:   linebot.FlexTextSizeTypeSm,
 						Weight: linebot.FlexTextWeightTypeBold,
 						Align:  linebot.FlexComponentAlignTypeEnd,
 					},
@@ -115,7 +134,7 @@ func createAccountComponent(account shared.Account, maxAsset int) *linebot.BoxCo
 
 	line := maxAsset
 	var allAssets bool
-	if len(account.Assets) < line {
+	if len(account.Assets) <= line {
 		allAssets = true
 		line = len(account.Assets)
 	}
@@ -138,14 +157,14 @@ func createAssetComponent(asset *shared.Asset) *linebot.BoxComponent {
 			&linebot.BoxComponent{
 				Type:       linebot.FlexComponentTypeText,
 				Layout:     linebot.FlexBoxLayoutTypeHorizontal,
-				PaddingTop: "8px",
+				PaddingTop: "3px",
 				Contents: []linebot.FlexComponent{
 					&linebot.TextComponent{
 						Type:        linebot.FlexComponentTypeText,
 						Text:        fmt.Sprintf("%.3f %s", asset.Amount, asset.Name),
 						Flex:        pointer.NewInt(8),
-						Color:       "#f5f7f8",
-						Size:        linebot.FlexTextSizeTypeXs,
+						Color:       blueColor,
+						Size:        linebot.FlexTextSizeTypeXxs,
 						OffsetStart: linebot.FlexComponentOffsetTypeMd,
 						Align:       linebot.FlexComponentAlignTypeStart,
 					},
@@ -153,8 +172,8 @@ func createAssetComponent(asset *shared.Asset) *linebot.BoxComponent {
 						Type:  linebot.FlexComponentTypeText,
 						Text:  price.Dollar(asset.Price),
 						Flex:  pointer.NewInt(4),
-						Color: "#f5f7f8",
-						Size:  linebot.FlexTextSizeTypeXs,
+						Color: grayColor,
+						Size:  linebot.FlexTextSizeTypeXxs,
 						Align: linebot.FlexComponentAlignTypeEnd,
 					},
 				},
@@ -171,13 +190,13 @@ func createTotalAccountAssetsComponent(totalPrice float64) *linebot.BoxComponent
 			&linebot.BoxComponent{
 				Type:       linebot.FlexComponentTypeText,
 				Layout:     linebot.FlexBoxLayoutTypeHorizontal,
-				PaddingTop: "8px",
+				PaddingTop: "3px",
 				Contents: []linebot.FlexComponent{
 					&linebot.TextComponent{
 						Type:   linebot.FlexComponentTypeText,
 						Text:   "Total",
 						Flex:   pointer.NewInt(8),
-						Color:  "#436AA9",
+						Color:  yelloColor,
 						Weight: linebot.FlexTextWeightTypeBold,
 						Align:  linebot.FlexComponentAlignTypeStart,
 					},
@@ -185,7 +204,7 @@ func createTotalAccountAssetsComponent(totalPrice float64) *linebot.BoxComponent
 						Type:   linebot.FlexComponentTypeText,
 						Text:   price.Dollar(totalPrice),
 						Flex:   pointer.NewInt(4),
-						Color:  "#436AA9",
+						Color:  greenColor,
 						Weight: linebot.FlexTextWeightTypeBold,
 						Align:  linebot.FlexComponentAlignTypeEnd,
 					},
@@ -198,16 +217,25 @@ func createTotalAccountAssetsComponent(totalPrice float64) *linebot.BoxComponent
 func createHasMoreComponent() *linebot.BoxComponent {
 	return &linebot.BoxComponent{
 		Type:   linebot.FlexComponentTypeText,
-		Layout: linebot.FlexBoxLayoutTypeVertical,
+		Layout: linebot.FlexBoxLayoutTypeHorizontal,
 		Contents: []linebot.FlexComponent{
 			&linebot.TextComponent{
 				Type:        linebot.FlexComponentTypeText,
 				Text:        ".....",
 				Flex:        pointer.NewInt(8),
-				Color:       "#f5f7f8",
-				Size:        linebot.FlexTextSizeTypeXs,
+				Color:       blueColor,
+				Size:        linebot.FlexTextSizeTypeXxs,
 				OffsetStart: linebot.FlexComponentOffsetTypeMd,
 				Align:       linebot.FlexComponentAlignTypeStart,
+			},
+			&linebot.TextComponent{
+				Type:      linebot.FlexComponentTypeText,
+				Text:      ".....",
+				Flex:      pointer.NewInt(8),
+				Color:     grayColor,
+				Size:      linebot.FlexTextSizeTypeXxs,
+				OffsetEnd: linebot.FlexComponentOffsetTypeMd,
+				Align:     linebot.FlexComponentAlignTypeEnd,
 			},
 		},
 	}
