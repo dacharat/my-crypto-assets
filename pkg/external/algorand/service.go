@@ -117,7 +117,3 @@ func (s *service) GetTransaction(ctx context.Context, account string) (AccountTr
 
 	return response, nil
 }
-
-// curl -X 'GET' \
-//   'https://algoindexer.algoexplorerapi.io/v2/accounts/CF7TTWTP7KWZSI7SR2FCBDAWMQMZ6OKS25X5LUZZIEEIW4R4VWYCSQYPII/transactions?limit=10&asset-id=27165954&currency-greater-than=0' \
-//   -H 'accept: application/json'

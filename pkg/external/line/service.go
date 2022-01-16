@@ -11,7 +11,7 @@ import (
 //go:generate mockgen -source=./service.go -destination=./mock_line/mock_service.go -package=mock_line
 type ILine interface {
 	ParseRequest(r *http.Request) ([]*linebot.Event, error)
-	SendFlexMessage(ctx context.Context, token string, container *linebot.BubbleContainer) error
+	SendFlexMessage(ctx context.Context, token string, message linebot.SendingMessage) error
 	ReplyTextMessage(ctx context.Context, token string, message string) error
 	PushMessage(ctx context.Context, container *linebot.BubbleContainer) error
 }
@@ -32,8 +32,8 @@ func (s *service) ParseRequest(r *http.Request) ([]*linebot.Event, error) {
 	return s.client.ParseRequest(r)
 }
 
-func (s *service) SendFlexMessage(ctx context.Context, token string, container *linebot.BubbleContainer) error {
-	_, err := s.client.ReplyMessage(token, linebot.NewFlexMessage("my crypto assets", container)).WithContext(ctx).Do()
+func (s *service) SendFlexMessage(ctx context.Context, token string, message linebot.SendingMessage) error {
+	_, err := s.client.ReplyMessage(token, message).WithContext(ctx).Do()
 	if err != nil {
 		return err
 	}

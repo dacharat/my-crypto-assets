@@ -8,6 +8,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/cmd/api/handler"
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice/mock_line_service"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice/mock_my_assets_service"
+	"github.com/dacharat/my-crypto-assets/pkg/service/platnetwatchservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/platnetwatchservice/mock_platnetwatch_service"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/dacharat/my-crypto-assets/pkg/util/testutil"
@@ -79,12 +80,27 @@ func TestHandler(t *testing.T) {
 			defer finish()
 
 			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(false)
-			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("message"), nil)
 			mockHandler.mockLineSvc.EXPECT().ReplyTextMessage(c.Request.Context(), "reply", "Not your assets!!")
 
 			handler.LineCallbackHandler(c)
 
 			require.Equal(ttt, res.Code, http.StatusSeeOther)
+		})
+
+		tt.Run("should return 400 invalid message type", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEventsSticker(), nil)
+			mockHandler.mockLineSvc.EXPECT().ReplyTextMessage(c.Request.Context(), "reply", "Not support message type: sticker")
+
+			handler.LineCallbackHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusBadRequest)
 		})
 
 		tt.Run("should return 500 get all assets", func(ttt *testing.T) {
@@ -94,8 +110,23 @@ func TestHandler(t *testing.T) {
 			defer finish()
 
 			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
-			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("message"), nil)
 			mockHandler.mockAssetsSvc.EXPECT().GetAllAssets(gomock.Any()).Return(nil, errors.New("error"))
+
+			handler.LineCallbackHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusInternalServerError)
+		})
+
+		tt.Run("should return 500 get incomes", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Planetwatch"), nil)
+			mockHandler.mockPlatnetwatchSvc.EXPECT().GetIncome(gomock.Any()).Return(nil, errors.New("error"))
 
 			handler.LineCallbackHandler(c)
 
@@ -111,7 +142,7 @@ func TestHandler(t *testing.T) {
 			accounts := []shared.Account{}
 
 			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
-			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("message"), nil)
 			mockHandler.mockAssetsSvc.EXPECT().GetAllAssets(gomock.Any()).Return(accounts, nil)
 			mockHandler.mockLineSvc.EXPECT().SendFlexMessage(c.Request.Context(), "reply", accounts).Return(errors.New("error"))
 
@@ -120,7 +151,25 @@ func TestHandler(t *testing.T) {
 			require.Equal(ttt, res.Code, http.StatusInternalServerError)
 		})
 
-		tt.Run("should return 200", func(ttt *testing.T) {
+		tt.Run("should return 500 with send planetwatch incomes", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			incomes := []*platnetwatchservice.Income{}
+
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Planetwatch"), nil)
+			mockHandler.mockPlatnetwatchSvc.EXPECT().GetIncome(gomock.Any()).Return(incomes, nil)
+			mockHandler.mockLineSvc.EXPECT().SendPlanetwatchFlexMessage(c.Request.Context(), "reply", incomes).Return(errors.New("error"))
+
+			handler.LineCallbackHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusInternalServerError)
+		})
+
+		tt.Run("should return 200 with assets", func(ttt *testing.T) {
 			res, c := testutil.NewDefaultContext()
 
 			handler, mockHandler, finish := newHandlerTest(ttt)
@@ -129,9 +178,27 @@ func TestHandler(t *testing.T) {
 			accounts := []shared.Account{}
 
 			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
-			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents(), nil)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("message"), nil)
 			mockHandler.mockAssetsSvc.EXPECT().GetAllAssets(gomock.Any()).Return(accounts, nil)
 			mockHandler.mockLineSvc.EXPECT().SendFlexMessage(c.Request.Context(), "reply", accounts).Return(nil)
+
+			handler.LineCallbackHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusOK)
+		})
+
+		tt.Run("should return 200 with planetwatch incomes", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			incomes := []*platnetwatchservice.Income{}
+
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Planetwatch"), nil)
+			mockHandler.mockPlatnetwatchSvc.EXPECT().GetIncome(gomock.Any()).Return(incomes, nil)
+			mockHandler.mockLineSvc.EXPECT().SendPlanetwatchFlexMessage(c.Request.Context(), "reply", incomes).Return(nil)
 
 			handler.LineCallbackHandler(c)
 
@@ -211,10 +278,18 @@ func newHandlerTest(t gomock.TestHelper) (handler.Handler, handlerMock, func()) 
 	return handler, mockHandler, finish
 }
 
-func createMockEvents() []*linebot.Event {
+func createMockEvents(message string) []*linebot.Event {
 	return []*linebot.Event{{
 		ReplyToken: "reply",
 		Source:     &linebot.EventSource{UserID: "owner"},
-		Message:    linebot.NewTextMessage("message"),
+		Message:    linebot.NewTextMessage(message),
+	}}
+}
+
+func createMockEventsSticker() []*linebot.Event {
+	return []*linebot.Event{{
+		ReplyToken: "reply",
+		Source:     &linebot.EventSource{UserID: "owner"},
+		Message:    linebot.NewStickerMessage("1", "message"),
 	}}
 }

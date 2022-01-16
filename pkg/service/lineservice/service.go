@@ -58,7 +58,7 @@ func (s *service) ParseRequest(r *http.Request) ([]*linebot.Event, error) {
 }
 
 func (s *service) SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error {
-	return s.lineApi.SendFlexMessage(ctx, token, createComponent(accounts, s.cfg.MaxAssetsDisplay))
+	return s.lineApi.SendFlexMessage(ctx, token, linebot.NewFlexMessage("my crypto assets", createComponent(accounts, s.cfg.MaxAssetsDisplay)))
 }
 
 func (s *service) ReplyTextMessage(ctx context.Context, token string, message string) error {
@@ -74,5 +74,5 @@ func (s *service) PushPlanetwatchMessage(ctx context.Context, incomes []*platnet
 }
 
 func (s *service) SendPlanetwatchFlexMessage(ctx context.Context, token string, incomes []*platnetwatchservice.Income) error {
-	return s.lineApi.SendFlexMessage(ctx, token, createPlanetwatchComponent(incomes))
+	return s.lineApi.SendFlexMessage(ctx, token, linebot.NewFlexMessage("planetwatch history", createPlanetwatchComponent(incomes)))
 }
