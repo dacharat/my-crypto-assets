@@ -12,7 +12,7 @@ func NewRouter(app app.App) *gin.Engine {
 	route := gin.Default()
 
 	mid := newMiddleware(app.GetConfig().DevMode)
-	h := handler.NewHandler(app.GetMyAssetsSvc(), app.GetLineSvc())
+	h := handler.NewHandler(app.GetMyAssetsSvc(), app.GetLineSvc(), app.GetPlanetwatchSvc())
 
 	route.GET("", func(c *gin.Context) {
 		c.Status(http.StatusNoContent)

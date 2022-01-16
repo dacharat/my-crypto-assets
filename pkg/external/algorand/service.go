@@ -103,7 +103,7 @@ func (s *service) GetTransaction(ctx context.Context, account string) (AccountTr
 	path := fmt.Sprintf(s.cfg.GetAccountTransactionsPath, account)
 	url := fmt.Sprintf("%s%s?limit=10&asset-id=27165954&currency-greater-than=0", s.cfg.Host, path)
 
-	resp, err := s.client.Get(ctx, url, nil)
+	resp, err := s.client.Get(ctx, url, nil, httpclient.WithoutResLog())
 	if err != nil {
 		return AccountTransactionResponse{}, err
 	}

@@ -1,26 +1,28 @@
 package handler
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice"
+	"github.com/dacharat/my-crypto-assets/pkg/service/platnetwatchservice"
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 type Handler struct {
-	assetsSvc myassetsservice.IMyAssetsService
-	lineSvc   lineservice.ILineService
+	assetsSvc       myassetsservice.IMyAssetsService
+	lineSvc         lineservice.ILineService
+	platnetwatchSvc platnetwatchservice.IPlanetwatchService
 }
 
-func NewHandler(assetsSvc myassetsservice.IMyAssetsService, lineSvc lineservice.ILineService) Handler {
+func NewHandler(assetsSvc myassetsservice.IMyAssetsService, lineSvc lineservice.ILineService, platnetwatchSvc platnetwatchservice.IPlanetwatchService) Handler {
 	return Handler{
-		assetsSvc: assetsSvc,
-		lineSvc:   lineSvc,
+		assetsSvc:       assetsSvc,
+		lineSvc:         lineSvc,
+		platnetwatchSvc: platnetwatchSvc,
 	}
 }
 
@@ -32,6 +34,12 @@ func (h Handler) GetAccountBalanceHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
+
+	// data, err := h.platnetwatchSvc.GetIncome(ctx)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+	// 	return
+	// }
 
 	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": data})
 }
@@ -58,20 +66,6 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 		return
 	}
 
-	a, _ := json.Marshal(e)
-	fmt.Println("=====================> a: ", a)
-	b, _ := json.Marshal(e.Message)
-	fmt.Println("=====================> b: ", b)
-	fmt.Println("=====================> c: ", e.Message)
-	fmt.Println("=====================> d: ", e.Message.Type())
-	fmt.Println("=====================> e: ", e.Message.Type())
-
-	// if e.Message.Type() != linebot.MessageTypeText {
-	// 	_ = h.lineSvc.ReplyTextMessage(ctx, token, fmt.Sprintf("Not support message type: %s", string(a)))
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("invalid message type")})
-	// 	return
-	// }
-
 	message, ok := e.Message.(*linebot.TextMessage)
 	if !ok {
 		_ = h.lineSvc.ReplyTextMessage(ctx, token, fmt.Sprintf("Not support message type: %s", e.Message.Type()))
@@ -80,8 +74,13 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 	}
 
 	switch message.Text {
-	case "Menu":
-		err = h.lineSvc.ReplyTextMessage(ctx, token, fmt.Sprintf("Test pass: %s", e.Message.Type()))
+	case "Planetwatch":
+		incomes, err := h.platnetwatchSvc.GetIncome(ctx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
+		err = h.lineSvc.SendPlanetwatchFlexMessage(ctx, token, incomes)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 			return
@@ -117,6 +116,17 @@ func (h Handler) LinePushMessageHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
+
+	// incomes, err := h.platnetwatchSvc.GetIncome(ctx)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+	// 	return
+	// }
+	// err = h.lineSvc.PushPlanetwatchMessage(ctx, incomes)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+	// 	return
+	// }
 
 	c.JSON(http.StatusOK, gin.H{})
 }
