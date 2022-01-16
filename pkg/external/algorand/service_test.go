@@ -106,6 +106,41 @@ func TestService(t *testing.T) {
 			require.NoError(ttt, err)
 		})
 	})
+
+	t.Run("GetTransaction", func(tt *testing.T) {
+		tt.Run("should get error", func(ttt *testing.T) {
+			ctx := context.Background()
+			algoSvc, mockSvc, finish := newAlgorandTestSvc(ttt)
+			defer finish()
+
+			mockSvc.mockHttpClient.
+				EXPECT().
+				Get(ctx, "https://algorand.free-host.com/account/123/transactions?limit=10&asset-id=27165954&currency-greater-than=0", nil, gomock.Any()).
+				Return(nil, errors.New("error"))
+
+			_, err := algoSvc.GetTransaction(ctx, "123")
+
+			require.Error(ttt, err)
+		})
+
+		tt.Run("should get success", func(ttt *testing.T) {
+			ctx := context.Background()
+			algoSvc, mockSvc, finish := newAlgorandTestSvc(ttt)
+			defer finish()
+
+			assets := algorand.AccountTransactionResponse{}
+			assetsStr, _ := json.Marshal(assets)
+
+			mockSvc.mockHttpClient.
+				EXPECT().
+				Get(ctx, "https://algorand.free-host.com/account/123/transactions?limit=10&asset-id=27165954&currency-greater-than=0", nil, gomock.Any()).
+				Return(createHttpResponse(http.StatusOK, string(assetsStr)), nil)
+
+			_, err := algoSvc.GetTransaction(ctx, "123")
+
+			require.NoError(ttt, err)
+		})
+	})
 }
 
 type algorandSvcMock struct {
@@ -117,10 +152,11 @@ func newAlgorandTestSvc(t gomock.TestReporter) (algorand.IAlgoland, algorandSvcM
 	ctrl := gomock.NewController(t)
 
 	cfg := &config.Algorand{
-		Host:           "https://algorand.free-host.com",
-		AlgodHost:      "https://algorand.host.com",
-		GetAccountPath: "/account/%s",
-		GetAssetPath:   "/assets/%d",
+		Host:                       "https://algorand.free-host.com",
+		AlgodHost:                  "https://algorand.host.com",
+		GetAccountPath:             "/account/%s",
+		GetAssetPath:               "/assets/%d",
+		GetAccountTransactionsPath: "/account/%s/transactions",
 	}
 
 	mockSvc := algorandSvcMock{

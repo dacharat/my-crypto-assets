@@ -80,15 +80,15 @@ func (mr *MockILineMockRecorder) ReplyTextMessage(ctx, token, message interface{
 }
 
 // SendFlexMessage mocks base method.
-func (m *MockILine) SendFlexMessage(ctx context.Context, token string, container *linebot.BubbleContainer) error {
+func (m *MockILine) SendFlexMessage(ctx context.Context, token string, message linebot.SendingMessage) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendFlexMessage", ctx, token, container)
+	ret := m.ctrl.Call(m, "SendFlexMessage", ctx, token, message)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SendFlexMessage indicates an expected call of SendFlexMessage.
-func (mr *MockILineMockRecorder) SendFlexMessage(ctx, token, container interface{}) *gomock.Call {
+func (mr *MockILineMockRecorder) SendFlexMessage(ctx, token, message interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendFlexMessage", reflect.TypeOf((*MockILine)(nil).SendFlexMessage), ctx, token, container)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendFlexMessage", reflect.TypeOf((*MockILine)(nil).SendFlexMessage), ctx, token, message)
 }

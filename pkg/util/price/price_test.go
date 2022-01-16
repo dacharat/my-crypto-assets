@@ -33,10 +33,10 @@ func TestPrice(t *testing.T) {
 			require.Equal(ttt, dollar, "$12,345.60")
 		})
 
-		tt.Run("should return $1,111,111,111.11", func(ttt *testing.T) {
-			dollar := price.Dollar(1111111111.111)
+		tt.Run("should return $111,111,111.11", func(ttt *testing.T) {
+			dollar := price.Dollar(111111111.111)
 
-			require.Equal(ttt, dollar, "$1,111,111,111.11")
+			require.Equal(ttt, dollar, "$111,111,111.11")
 		})
 	})
 }
