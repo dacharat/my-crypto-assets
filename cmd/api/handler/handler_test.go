@@ -8,6 +8,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/cmd/api/handler"
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice/mock_line_service"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice/mock_my_assets_service"
+	"github.com/dacharat/my-crypto-assets/pkg/service/platnetwatchservice/mock_platnetwatch_service"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/dacharat/my-crypto-assets/pkg/util/testutil"
 	"github.com/golang/mock/gomock"
@@ -187,23 +188,25 @@ func TestHandler(t *testing.T) {
 }
 
 type handlerMock struct {
-	mockAssetsSvc *mock_my_assets_service.MockIMyAssetsService
-	mockLineSvc   *mock_line_service.MockILineService
+	mockAssetsSvc       *mock_my_assets_service.MockIMyAssetsService
+	mockLineSvc         *mock_line_service.MockILineService
+	mockPlatnetwatchSvc *mock_platnetwatch_service.MockIPlanetwatchService
 }
 
 func newHandlerTest(t gomock.TestHelper) (handler.Handler, handlerMock, func()) {
 	ctrl := gomock.NewController(t)
 
 	mockHandler := handlerMock{
-		mockAssetsSvc: mock_my_assets_service.NewMockIMyAssetsService(ctrl),
-		mockLineSvc:   mock_line_service.NewMockILineService(ctrl),
+		mockAssetsSvc:       mock_my_assets_service.NewMockIMyAssetsService(ctrl),
+		mockLineSvc:         mock_line_service.NewMockILineService(ctrl),
+		mockPlatnetwatchSvc: mock_platnetwatch_service.NewMockIPlanetwatchService(ctrl),
 	}
 
 	finish := func() {
 		ctrl.Finish()
 	}
 
-	handler := handler.NewHandler(mockHandler.mockAssetsSvc, mockHandler.mockLineSvc)
+	handler := handler.NewHandler(mockHandler.mockAssetsSvc, mockHandler.mockLineSvc, mockHandler.mockPlatnetwatchSvc)
 
 	return handler, mockHandler, finish
 }

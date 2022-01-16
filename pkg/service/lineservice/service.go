@@ -6,6 +6,7 @@ import (
 
 	"github.com/dacharat/my-crypto-assets/pkg/config"
 	"github.com/dacharat/my-crypto-assets/pkg/external/line"
+	"github.com/dacharat/my-crypto-assets/pkg/service/platnetwatchservice"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
@@ -20,7 +21,7 @@ const (
 	blueGreenColor = "#00bdc7"
 	grayColor      = "#A6B5C5"
 	blueColor      = "#38acf5"
-	// purpleColor    = "#9860dd"
+	purpleColor    = "#9860dd"
 )
 
 //go:generate mockgen -source=./service.go -destination=./mock_line_service/mock_service.go -package=mock_line_service
@@ -30,6 +31,8 @@ type ILineService interface {
 	SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error
 	ReplyTextMessage(ctx context.Context, token string, message string) error
 	PushMessage(ctx context.Context, accounts []shared.Account) error
+	PushPlanetwatchMessage(ctx context.Context, incomes []*platnetwatchservice.Income) error
+	SendPlanetwatchFlexMessage(ctx context.Context, token string, incomes []*platnetwatchservice.Income) error
 }
 
 type service struct {
@@ -64,4 +67,12 @@ func (s *service) ReplyTextMessage(ctx context.Context, token string, message st
 
 func (s *service) PushMessage(ctx context.Context, accounts []shared.Account) error {
 	return s.lineApi.PushMessage(ctx, createComponent(accounts, s.cfg.MaxAssetsDisplay))
+}
+
+func (s *service) PushPlanetwatchMessage(ctx context.Context, incomes []*platnetwatchservice.Income) error {
+	return s.lineApi.PushMessage(ctx, createPlanetwatchComponent(incomes))
+}
+
+func (s *service) SendPlanetwatchFlexMessage(ctx context.Context, token string, incomes []*platnetwatchservice.Income) error {
+	return s.lineApi.SendFlexMessage(ctx, token, createPlanetwatchComponent(incomes))
 }
