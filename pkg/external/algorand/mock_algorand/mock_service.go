@@ -64,3 +64,18 @@ func (mr *MockIAlgolandMockRecorder) GetAssetByID(ctx, asset interface{}) *gomoc
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAssetByID", reflect.TypeOf((*MockIAlgoland)(nil).GetAssetByID), ctx, asset)
 }
+
+// GetTransaction mocks base method.
+func (m *MockIAlgoland) GetTransaction(ctx context.Context, account string) (algorand.AccountTransactionResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTransaction", ctx, account)
+	ret0, _ := ret[0].(algorand.AccountTransactionResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTransaction indicates an expected call of GetTransaction.
+func (mr *MockIAlgolandMockRecorder) GetTransaction(ctx, account interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransaction", reflect.TypeOf((*MockIAlgoland)(nil).GetTransaction), ctx, account)
+}

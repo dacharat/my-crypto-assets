@@ -24,9 +24,10 @@ type Algorand struct {
 	Host         string `envconfig:"ALGORAND_HOST" required:"true"`
 	GetAssetPath string `envconfig:"ALGORAND_GET_ASSET_PATH" default:"/v2/assets/%d"`
 
-	AlgodHost      string `envconfig:"ALGORAND_ALGOD_HOST" required:"true"`
-	ApiKey         string `envconfig:"ALGORAND_ALGOD_APILEY"`
-	GetAccountPath string `envconfig:"ALGORAND_GET_ACCOUNT_PATH" default:"/v2/accounts/%s"`
+	AlgodHost                  string `envconfig:"ALGORAND_ALGOD_HOST" required:"true"`
+	ApiKey                     string `envconfig:"ALGORAND_ALGOD_APILEY"`
+	GetAccountPath             string `envconfig:"ALGORAND_GET_ACCOUNT_PATH" default:"/v2/accounts/%s"`
+	GetAccountTransactionsPath string `envconfig:"ALGORAND_GET_ACCOUNT_TRANSACTIONS_PATH" default:"/v2/accounts/%s/transactions"`
 
 	DefaultDecimal int  `envconfig:"ALGORAND_DEFAULT_DECIMAL" default:"6"`
 	UseFreeApi     bool `envconfig:"ALGORAND_USE_FREE_API" default:"false"`
