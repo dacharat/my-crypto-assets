@@ -58,8 +58,15 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 		return
 	}
 
+	a, _ := json.Marshal(e)
+	fmt.Println("=====================> a: ", a)
+	b, _ := json.Marshal(e.Message)
+	fmt.Println("=====================> b: ", b)
+	fmt.Println("=====================> c: ", e.Message)
+	fmt.Println("=====================> d: ", e.Message.Type())
+	fmt.Println("=====================> e: ", e.Message.Type())
+
 	if e.Message.Type() != linebot.MessageTypeText {
-		a, _ := json.Marshal(e)
 		_ = h.lineSvc.ReplyTextMessage(ctx, token, fmt.Sprintf("Not support message type: %s", string(a)))
 		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("invalid message type")})
 		return
