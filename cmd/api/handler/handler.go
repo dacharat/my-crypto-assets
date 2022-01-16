@@ -2,11 +2,13 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice"
 	"github.com/gin-gonic/gin"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 type Handler struct {
@@ -47,23 +49,40 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 		return
 	}
 
-	token := event[0].ReplyToken
-	if !h.lineSvc.IsOwner(event[0].Source.UserID) {
+	e := event[0]
+	token := e.ReplyToken
+	if !h.lineSvc.IsOwner(e.Source.UserID) {
 		_ = h.lineSvc.ReplyTextMessage(ctx, token, "Not your assets!!")
 		c.JSON(http.StatusSeeOther, gin.H{"error": errors.New("invalid user")})
 		return
 	}
 
-	data, err := h.assetsSvc.GetAllAssets(ctx)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+	if e.Message.Type() != linebot.MessageTypeText {
+		_ = h.lineSvc.ReplyTextMessage(ctx, token, fmt.Sprintf("Not support message type: %s", e.Message.Type()))
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("invalid message type")})
 		return
 	}
 
-	err = h.lineSvc.SendFlexMessage(c.Request.Context(), token, data)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+	message, ok := e.Message.(*linebot.TextMessage)
+	if !ok {
+		_ = h.lineSvc.ReplyTextMessage(ctx, token, fmt.Sprintf("Cannot cast to message type: %s", e.Message.Type()))
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("cannot cast message type")})
 		return
+	}
+
+	switch message.Text {
+	default:
+		data, err := h.assetsSvc.GetAllAssets(ctx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
+
+		err = h.lineSvc.SendFlexMessage(c.Request.Context(), token, data)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{})

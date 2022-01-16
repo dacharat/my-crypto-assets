@@ -212,5 +212,6 @@ func createMockEvents() []*linebot.Event {
 	return []*linebot.Event{{
 		ReplyToken: "reply",
 		Source:     &linebot.EventSource{UserID: "owner"},
+		Message:    linebot.NewTextMessage("message"),
 	}}
 }

@@ -14,6 +14,7 @@ import (
 type IAlgoland interface {
 	GetAlgodAccountByID(ctx context.Context, account string) (Account, error)
 	GetAssetByID(ctx context.Context, asset int) (AssetResponse, error)
+	GetTransaction(ctx context.Context, account string) (AccountTransactionResponse, error)
 }
 
 type service struct {
@@ -97,3 +98,26 @@ func (s *service) getAccountByID(ctx context.Context, account string) (AccountRe
 
 	return response, nil
 }
+
+func (s *service) GetTransaction(ctx context.Context, account string) (AccountTransactionResponse, error) {
+	path := fmt.Sprintf(s.cfg.GetAccountTransactionsPath, account)
+	url := fmt.Sprintf("%s%s?limit=10&asset-id=27165954&currency-greater-than=0", s.cfg.Host, path)
+
+	resp, err := s.client.Get(ctx, url, nil)
+	if err != nil {
+		return AccountTransactionResponse{}, err
+	}
+
+	var response AccountTransactionResponse
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return response, err
+	}
+
+	return response, nil
+}
+
+// curl -X 'GET' \
+//   'https://algoindexer.algoexplorerapi.io/v2/accounts/CF7TTWTP7KWZSI7SR2FCBDAWMQMZ6OKS25X5LUZZIEEIW4R4VWYCSQYPII/transactions?limit=10&asset-id=27165954&currency-greater-than=0' \
+//   -H 'accept: application/json'
