@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -58,7 +59,8 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 	}
 
 	if e.Message.Type() != linebot.MessageTypeText {
-		_ = h.lineSvc.ReplyTextMessage(ctx, token, fmt.Sprintf("Not support message type: %s", e.Message.Type()))
+		a, _ := json.Marshal(e.Message)
+		_ = h.lineSvc.ReplyTextMessage(ctx, token, fmt.Sprintf("Not support message type: %s", string(a)))
 		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("invalid message type")})
 		return
 	}
