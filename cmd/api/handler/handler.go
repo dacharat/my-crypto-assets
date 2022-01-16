@@ -71,6 +71,12 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 	}
 
 	switch message.Text {
+	case "Menu":
+		err = h.lineSvc.ReplyTextMessage(ctx, token, fmt.Sprintf("Test pass: %s", e.Message.Type()))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
 	default:
 		data, err := h.assetsSvc.GetAllAssets(ctx)
 		if err != nil {
