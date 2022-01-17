@@ -14,7 +14,7 @@ import (
 type IAlgoland interface {
 	GetAlgodAccountByID(ctx context.Context, account string) (Account, error)
 	GetAssetByID(ctx context.Context, asset int) (AssetResponse, error)
-	GetTransaction(ctx context.Context, account string) (AccountTransactionResponse, error)
+	GetTransaction(ctx context.Context, account string, opts ...QueryOption) (AccountTransactionResponse, error)
 }
 
 type service struct {
@@ -99,9 +99,14 @@ func (s *service) getAccountByID(ctx context.Context, account string) (AccountRe
 	return response, nil
 }
 
-func (s *service) GetTransaction(ctx context.Context, account string) (AccountTransactionResponse, error) {
+func (s *service) GetTransaction(ctx context.Context, account string, opts ...QueryOption) (AccountTransactionResponse, error) {
+	q := Query{}
+	for _, opt := range opts {
+		opt(&q)
+	}
+
 	path := fmt.Sprintf(s.cfg.GetAccountTransactionsPath, account)
-	url := fmt.Sprintf("%s%s?limit=10&asset-id=27165954&currency-greater-than=0", s.cfg.Host, path)
+	url := fmt.Sprintf("%s%s?%s", s.cfg.Host, path, q.String())
 
 	resp, err := s.client.Get(ctx, url, nil, httpclient.WithoutResLog())
 	if err != nil {
