@@ -118,7 +118,7 @@ func TestService(t *testing.T) {
 				Get(ctx, "https://algorand.free-host.com/account/123/transactions?limit=10&asset-id=27165954&currency-greater-than=0", nil, gomock.Any()).
 				Return(nil, errors.New("error"))
 
-			_, err := algoSvc.GetTransaction(ctx, "123")
+			_, err := algoSvc.GetTransaction(ctx, "123", algorand.WithLimit(10), algorand.WithAssetID(27165954), algorand.WithCurrencyGreaterThan(0))
 
 			require.Error(ttt, err)
 		})
@@ -136,7 +136,7 @@ func TestService(t *testing.T) {
 				Get(ctx, "https://algorand.free-host.com/account/123/transactions?limit=10&asset-id=27165954&currency-greater-than=0", nil, gomock.Any()).
 				Return(createHttpResponse(http.StatusOK, string(assetsStr)), nil)
 
-			_, err := algoSvc.GetTransaction(ctx, "123")
+			_, err := algoSvc.GetTransaction(ctx, "123", algorand.WithLimit(10), algorand.WithAssetID(27165954), algorand.WithCurrencyGreaterThan(0))
 
 			require.NoError(ttt, err)
 		})

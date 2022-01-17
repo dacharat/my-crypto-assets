@@ -20,7 +20,11 @@ func TestService(t *testing.T) {
 			svc, mockSvc, finish := newPlanetwatchTestSvc(ttt)
 			defer finish()
 
-			mockSvc.mockAlgoApi.EXPECT().GetTransaction(ctx, "123").Return(algorand.AccountTransactionResponse{}, errors.New("error"))
+			// opts := []interface{}{algorand.WithLimit(10), algorand.WithAssetID(27165954), algorand.WithCurrencyGreaterThan(0)}
+			mockSvc.mockAlgoApi.
+				EXPECT().
+				GetTransaction(ctx, "123", gomock.Any()).
+				Return(algorand.AccountTransactionResponse{}, errors.New("error"))
 
 			_, err := svc.GetIncome(ctx)
 			require.Error(ttt, err)
@@ -30,7 +34,10 @@ func TestService(t *testing.T) {
 			svc, mockSvc, finish := newPlanetwatchTestSvc(ttt)
 			defer finish()
 
-			mockSvc.mockAlgoApi.EXPECT().GetTransaction(ctx, "123").Return(createMockAccountTransaction(), nil)
+			mockSvc.mockAlgoApi.
+				EXPECT().
+				GetTransaction(ctx, "123", gomock.Any()).
+				Return(createMockAccountTransaction(), nil)
 
 			_, err := svc.GetIncome(ctx)
 			require.NoError(ttt, err)

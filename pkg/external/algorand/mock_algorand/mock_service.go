@@ -66,16 +66,21 @@ func (mr *MockIAlgolandMockRecorder) GetAssetByID(ctx, asset interface{}) *gomoc
 }
 
 // GetTransaction mocks base method.
-func (m *MockIAlgoland) GetTransaction(ctx context.Context, account string) (algorand.AccountTransactionResponse, error) {
+func (m *MockIAlgoland) GetTransaction(ctx context.Context, account string, opts ...algorand.QueryOption) (algorand.AccountTransactionResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTransaction", ctx, account)
+	varargs := []interface{}{ctx, account}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetTransaction", varargs...)
 	ret0, _ := ret[0].(algorand.AccountTransactionResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetTransaction indicates an expected call of GetTransaction.
-func (mr *MockIAlgolandMockRecorder) GetTransaction(ctx, account interface{}) *gomock.Call {
+func (mr *MockIAlgolandMockRecorder) GetTransaction(ctx, account interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransaction", reflect.TypeOf((*MockIAlgoland)(nil).GetTransaction), ctx, account)
+	varargs := append([]interface{}{ctx, account}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransaction", reflect.TypeOf((*MockIAlgoland)(nil).GetTransaction), varargs...)
 }

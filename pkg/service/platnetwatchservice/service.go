@@ -30,7 +30,7 @@ func NewService(algorandApi algorand.IAlgoland, cfg *config.Algorand, address st
 }
 
 func (s *service) GetIncome(ctx context.Context) ([]*Income, error) {
-	txn, err := s.algorandApi.GetTransaction(ctx, s.address)
+	txn, err := s.algorandApi.GetTransaction(ctx, s.address, algorand.WithLimit(10), algorand.WithAssetID(27165954), algorand.WithCurrencyGreaterThan(0))
 	if err != nil {
 		return nil, err
 	}
