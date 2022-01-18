@@ -82,17 +82,17 @@ func (mr *MockILineServiceMockRecorder) PushMessage(ctx, accounts interface{}) *
 }
 
 // PushPlanetwatchMessage mocks base method.
-func (m *MockILineService) PushPlanetwatchMessage(ctx context.Context, incomes []*platnetwatchservice.Income) error {
+func (m *MockILineService) PushPlanetwatchMessage(ctx context.Context, summary platnetwatchservice.Summary) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PushPlanetwatchMessage", ctx, incomes)
+	ret := m.ctrl.Call(m, "PushPlanetwatchMessage", ctx, summary)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // PushPlanetwatchMessage indicates an expected call of PushPlanetwatchMessage.
-func (mr *MockILineServiceMockRecorder) PushPlanetwatchMessage(ctx, incomes interface{}) *gomock.Call {
+func (mr *MockILineServiceMockRecorder) PushPlanetwatchMessage(ctx, summary interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PushPlanetwatchMessage", reflect.TypeOf((*MockILineService)(nil).PushPlanetwatchMessage), ctx, incomes)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PushPlanetwatchMessage", reflect.TypeOf((*MockILineService)(nil).PushPlanetwatchMessage), ctx, summary)
 }
 
 // ReplyTextMessage mocks base method.
@@ -124,15 +124,15 @@ func (mr *MockILineServiceMockRecorder) SendFlexMessage(ctx, token, accounts int
 }
 
 // SendPlanetwatchFlexMessage mocks base method.
-func (m *MockILineService) SendPlanetwatchFlexMessage(ctx context.Context, token string, incomes []*platnetwatchservice.Income) error {
+func (m *MockILineService) SendPlanetwatchFlexMessage(ctx context.Context, token string, summary platnetwatchservice.Summary) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendPlanetwatchFlexMessage", ctx, token, incomes)
+	ret := m.ctrl.Call(m, "SendPlanetwatchFlexMessage", ctx, token, summary)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SendPlanetwatchFlexMessage indicates an expected call of SendPlanetwatchFlexMessage.
-func (mr *MockILineServiceMockRecorder) SendPlanetwatchFlexMessage(ctx, token, incomes interface{}) *gomock.Call {
+func (mr *MockILineServiceMockRecorder) SendPlanetwatchFlexMessage(ctx, token, summary interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendPlanetwatchFlexMessage", reflect.TypeOf((*MockILineService)(nil).SendPlanetwatchFlexMessage), ctx, token, incomes)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendPlanetwatchFlexMessage", reflect.TypeOf((*MockILineService)(nil).SendPlanetwatchFlexMessage), ctx, token, summary)
 }

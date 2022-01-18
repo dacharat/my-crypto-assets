@@ -31,8 +31,8 @@ type ILineService interface {
 	SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error
 	ReplyTextMessage(ctx context.Context, token string, message string) error
 	PushMessage(ctx context.Context, accounts []shared.Account) error
-	PushPlanetwatchMessage(ctx context.Context, incomes []*platnetwatchservice.Income) error
-	SendPlanetwatchFlexMessage(ctx context.Context, token string, incomes []*platnetwatchservice.Income) error
+	PushPlanetwatchMessage(ctx context.Context, summary platnetwatchservice.Summary) error
+	SendPlanetwatchFlexMessage(ctx context.Context, token string, summary platnetwatchservice.Summary) error
 }
 
 type service struct {
@@ -69,10 +69,10 @@ func (s *service) PushMessage(ctx context.Context, accounts []shared.Account) er
 	return s.lineApi.PushMessage(ctx, createComponent(accounts, s.cfg.MaxAssetsDisplay))
 }
 
-func (s *service) PushPlanetwatchMessage(ctx context.Context, incomes []*platnetwatchservice.Income) error {
-	return s.lineApi.PushMessage(ctx, createPlanetwatchComponent(incomes))
+func (s *service) PushPlanetwatchMessage(ctx context.Context, summary platnetwatchservice.Summary) error {
+	return s.lineApi.PushMessage(ctx, createPlanetwatchComponent(summary))
 }
 
-func (s *service) SendPlanetwatchFlexMessage(ctx context.Context, token string, incomes []*platnetwatchservice.Income) error {
-	return s.lineApi.SendFlexMessage(ctx, token, linebot.NewFlexMessage("planetwatch history", createPlanetwatchComponent(incomes)))
+func (s *service) SendPlanetwatchFlexMessage(ctx context.Context, token string, summary platnetwatchservice.Summary) error {
+	return s.lineApi.SendFlexMessage(ctx, token, linebot.NewFlexMessage("planetwatch history", createPlanetwatchComponent(summary)))
 }

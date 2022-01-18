@@ -49,3 +49,18 @@ func (mr *MockIPlanetwatchServiceMockRecorder) GetIncome(ctx interface{}) *gomoc
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncome", reflect.TypeOf((*MockIPlanetwatchService)(nil).GetIncome), ctx)
 }
+
+// GetSummary mocks base method.
+func (m *MockIPlanetwatchService) GetSummary(ctx context.Context) (platnetwatchservice.Summary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSummary", ctx)
+	ret0, _ := ret[0].(platnetwatchservice.Summary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSummary indicates an expected call of GetSummary.
+func (mr *MockIPlanetwatchServiceMockRecorder) GetSummary(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSummary", reflect.TypeOf((*MockIPlanetwatchService)(nil).GetSummary), ctx)
+}

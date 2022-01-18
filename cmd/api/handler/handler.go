@@ -35,7 +35,7 @@ func (h Handler) GetAccountBalanceHandler(c *gin.Context) {
 		return
 	}
 
-	// data, err := h.platnetwatchSvc.GetIncome(ctx)
+	// data, err := h.platnetwatchSvc.GetSummary(ctx)
 	// if err != nil {
 	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 	// 	return
@@ -75,12 +75,12 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 
 	switch message.Text {
 	case "Planetwatch":
-		incomes, err := h.platnetwatchSvc.GetIncome(ctx)
+		summary, err := h.platnetwatchSvc.GetSummary(ctx)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 			return
 		}
-		err = h.lineSvc.SendPlanetwatchFlexMessage(ctx, token, incomes)
+		err = h.lineSvc.SendPlanetwatchFlexMessage(ctx, token, summary)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 			return
@@ -117,7 +117,7 @@ func (h Handler) LinePushMessageHandler(c *gin.Context) {
 		return
 	}
 
-	// incomes, err := h.platnetwatchSvc.GetIncome(ctx)
+	// incomes, err := h.platnetwatchSvc.GetSummary(ctx)
 	// if err != nil {
 	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 	// 	return
@@ -128,5 +128,5 @@ func (h Handler) LinePushMessageHandler(c *gin.Context) {
 	// 	return
 	// }
 
-	c.JSON(http.StatusOK, gin.H{})
+	c.Status(http.StatusNoContent)
 }

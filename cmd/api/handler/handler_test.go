@@ -126,7 +126,7 @@ func TestHandler(t *testing.T) {
 
 			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
 			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Planetwatch"), nil)
-			mockHandler.mockPlatnetwatchSvc.EXPECT().GetIncome(gomock.Any()).Return(nil, errors.New("error"))
+			mockHandler.mockPlatnetwatchSvc.EXPECT().GetSummary(gomock.Any()).Return(platnetwatchservice.Summary{}, errors.New("error"))
 
 			handler.LineCallbackHandler(c)
 
@@ -157,12 +157,12 @@ func TestHandler(t *testing.T) {
 			handler, mockHandler, finish := newHandlerTest(ttt)
 			defer finish()
 
-			incomes := []*platnetwatchservice.Income{}
+			summary := platnetwatchservice.Summary{}
 
 			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
 			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Planetwatch"), nil)
-			mockHandler.mockPlatnetwatchSvc.EXPECT().GetIncome(gomock.Any()).Return(incomes, nil)
-			mockHandler.mockLineSvc.EXPECT().SendPlanetwatchFlexMessage(c.Request.Context(), "reply", incomes).Return(errors.New("error"))
+			mockHandler.mockPlatnetwatchSvc.EXPECT().GetSummary(gomock.Any()).Return(summary, nil)
+			mockHandler.mockLineSvc.EXPECT().SendPlanetwatchFlexMessage(c.Request.Context(), "reply", summary).Return(errors.New("error"))
 
 			handler.LineCallbackHandler(c)
 
@@ -193,12 +193,12 @@ func TestHandler(t *testing.T) {
 			handler, mockHandler, finish := newHandlerTest(ttt)
 			defer finish()
 
-			incomes := []*platnetwatchservice.Income{}
+			summary := platnetwatchservice.Summary{}
 
 			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
 			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Planetwatch"), nil)
-			mockHandler.mockPlatnetwatchSvc.EXPECT().GetIncome(gomock.Any()).Return(incomes, nil)
-			mockHandler.mockLineSvc.EXPECT().SendPlanetwatchFlexMessage(c.Request.Context(), "reply", incomes).Return(nil)
+			mockHandler.mockPlatnetwatchSvc.EXPECT().GetSummary(gomock.Any()).Return(summary, nil)
+			mockHandler.mockLineSvc.EXPECT().SendPlanetwatchFlexMessage(c.Request.Context(), "reply", summary).Return(nil)
 
 			handler.LineCallbackHandler(c)
 
