@@ -52,4 +52,51 @@ func TestTimeutil(t *testing.T) {
 			require.NotEqual(ttt, now.Year(), 2011)
 		})
 	})
+
+	t.Run("TimeAgo", func(tt *testing.T) {
+		tt.Run("1 second ago", func(ttt *testing.T) {
+			now := time.Date(2022, 2, 2, 2, 2, 2, 2, timeutil.BkkLoc)
+			from := time.Date(2022, 2, 2, 2, 2, 1, 2, timeutil.BkkLoc)
+
+			ago := timeutil.TimeAgo(now, from)
+
+			require.Equal(ttt, ago, "1s ago")
+		})
+
+		tt.Run("1 minute 1 second ago", func(ttt *testing.T) {
+			now := time.Date(2022, 2, 2, 2, 2, 2, 2, timeutil.BkkLoc)
+			from := time.Date(2022, 2, 2, 2, 1, 1, 2, timeutil.BkkLoc)
+
+			ago := timeutil.TimeAgo(now, from)
+
+			require.Equal(ttt, ago, "1m ago")
+		})
+
+		tt.Run("1 hour 1 minute 1 second ago", func(ttt *testing.T) {
+			now := time.Date(2022, 2, 2, 2, 2, 2, 2, timeutil.BkkLoc)
+			from := time.Date(2022, 2, 2, 1, 1, 1, 2, timeutil.BkkLoc)
+
+			ago := timeutil.TimeAgo(now, from)
+
+			require.Equal(ttt, ago, "1h ago")
+		})
+
+		tt.Run("1 day ago", func(ttt *testing.T) {
+			now := time.Date(2022, 2, 2, 2, 2, 2, 2, timeutil.BkkLoc)
+			from := time.Date(2022, 2, 1, 1, 1, 1, 2, timeutil.BkkLoc)
+
+			ago := timeutil.TimeAgo(now, from)
+
+			require.Equal(ttt, ago, "1d ago")
+		})
+
+		tt.Run("1 month ago", func(ttt *testing.T) {
+			now := time.Date(2022, 2, 2, 2, 2, 2, 2, timeutil.BkkLoc)
+			from := time.Date(2022, 1, 1, 1, 1, 1, 2, timeutil.BkkLoc)
+
+			ago := timeutil.TimeAgo(now, from)
+
+			require.Equal(ttt, ago, "32d ago")
+		})
+	})
 }

@@ -119,7 +119,7 @@ func TestService(t *testing.T) {
 
 			mockSvc.mockLine.EXPECT().PushMessage(ctx, gomock.Any()).Return(errors.New("error"))
 
-			err := svc.PushPlanetwatchMessage(ctx, createMockIncomes())
+			err := svc.PushPlanetwatchMessage(ctx, createMockSummary())
 			require.Error(ttt, err)
 		})
 
@@ -130,7 +130,7 @@ func TestService(t *testing.T) {
 
 			mockSvc.mockLine.EXPECT().PushMessage(ctx, gomock.Any())
 
-			err := svc.PushPlanetwatchMessage(ctx, createMockIncomes())
+			err := svc.PushPlanetwatchMessage(ctx, createMockSummary())
 			require.NoError(ttt, err)
 		})
 	})
@@ -143,7 +143,7 @@ func TestService(t *testing.T) {
 
 			mockSvc.mockLine.EXPECT().SendFlexMessage(ctx, "", gomock.Any()).Return(errors.New("error"))
 
-			err := svc.SendPlanetwatchFlexMessage(ctx, "", createMockIncomes())
+			err := svc.SendPlanetwatchFlexMessage(ctx, "", createMockSummary())
 			require.Error(ttt, err)
 		})
 
@@ -154,7 +154,7 @@ func TestService(t *testing.T) {
 
 			mockSvc.mockLine.EXPECT().SendFlexMessage(ctx, "", gomock.Any())
 
-			err := svc.SendPlanetwatchFlexMessage(ctx, "", createMockIncomes())
+			err := svc.SendPlanetwatchFlexMessage(ctx, "", createMockSummary())
 			require.NoError(ttt, err)
 		})
 	})
@@ -217,9 +217,11 @@ func createMockAccounts() []shared.Account {
 	}}
 }
 
-func createMockIncomes() []*platnetwatchservice.Income {
-	return []*platnetwatchservice.Income{{
-		Date:   time.Date(2022, 1, 16, 23, 32, 00, 00, timeutil.BkkLoc),
-		Amount: 1,
-	}}
+func createMockSummary() platnetwatchservice.Summary {
+	return platnetwatchservice.Summary{
+		Incomes: []*platnetwatchservice.Income{{
+			Date:   time.Date(2022, 1, 16, 23, 32, 00, 00, timeutil.BkkLoc),
+			Amount: 1,
+		}},
+	}
 }
