@@ -3,26 +3,23 @@ package bitkubchainservice
 import (
 	"context"
 	"fmt"
-	"math/big"
 
-	"github.com/dacharat/my-crypto-assets/pkg/abi/erctoken"
+	"github.com/dacharat/my-crypto-assets/pkg/external/web3eth"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/dacharat/my-crypto-assets/pkg/util/number"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func NewService(conn *ethclient.Client) shared.IAssetsService {
+func NewService(web3 web3eth.IWeb3Eth) shared.IAssetsService {
 	addresses := []string{"0x67eBD850304c70d983B2d1b93ea79c7CD6c3F6b5", "0x726613C4494C60B7dCdeA5BE2846180C1DAfBE8B"}
 	return &service{
-		conn:      conn,
+		web3:      web3,
 		addresses: addresses,
 	}
 }
 
 type service struct {
-	conn      *ethclient.Client
+	web3      web3eth.IWeb3Eth
 	addresses []string
 }
 
@@ -56,7 +53,7 @@ func (s service) GetAccount(ctx context.Context, req shared.GetAccountReq) (shar
 	var err error
 	for i := range assets {
 		errCh := <-ch
-		if err != nil {
+		if errCh != nil {
 			err = fmt.Errorf("%d: %w", i, errCh)
 		}
 	}
@@ -75,7 +72,7 @@ func (s service) GetAccount(ctx context.Context, req shared.GetAccountReq) (shar
 }
 
 func (s *service) getAccountBalance(ctx context.Context, account common.Address) (*shared.Asset, error) {
-	balance, err := s.conn.BalanceAt(ctx, account, nil)
+	balance, err := s.web3.GetAccountBalance(ctx, account)
 	if err != nil {
 		return nil, err
 	}
@@ -88,53 +85,14 @@ func (s *service) getAccountBalance(ctx context.Context, account common.Address)
 
 func (s *service) getTokenInfo(account common.Address, address string) (*shared.Asset, error) {
 	tokenAddress := common.HexToAddress(address)
-	instance, err := erctoken.NewToken(tokenAddress, s.conn)
-	max := 3
+
+	info, err := s.web3.GetTokenBalance(tokenAddress, account)
 	if err != nil {
 		return nil, err
 	}
 
-	var (
-		balance *big.Int
-		symbol  string
-		decimal uint8
-	)
-
-	ch := make(chan error, max)
-
-	go func() {
-		bal, err := instance.BalanceOf(&bind.CallOpts{}, account)
-		if err == nil {
-			balance = bal
-		}
-		ch <- err
-	}()
-
-	go func() {
-		sym, err := instance.Symbol(&bind.CallOpts{})
-		if err == nil {
-			symbol = sym
-		}
-		ch <- err
-	}()
-
-	go func() {
-		decimals, err := instance.Decimals(&bind.CallOpts{})
-		if err == nil {
-			decimal = decimals
-		}
-		ch <- err
-	}()
-
-	var errs error
-	for i := 0; i < max; i++ {
-		errCh := <-ch
-		if errCh != nil {
-			errs = fmt.Errorf("%d: %w", i, errCh)
-		}
-	}
 	return &shared.Asset{
-		Name:   symbol,
-		Amount: number.BigIntToFloat(balance, int(decimal)),
-	}, errs
+		Name:   info.Symbol,
+		Amount: number.BigIntToFloat(info.Balance, int(info.Decimals)),
+	}, nil
 }
