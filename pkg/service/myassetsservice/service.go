@@ -13,6 +13,7 @@ var platformMapper map[shared.Platform]coingecko.CoingeckoMapper = map[shared.Pl
 	shared.Algorand:    coingecko.AlgoCoinID,
 	shared.BitkubChain: coingecko.BitkubCoinID,
 	shared.ElrondChain: coingecko.ElrondCoinID,
+	shared.BSC:         coingecko.BscCoinID,
 }
 
 //go:generate mockgen -source=./service.go -destination=./mock_my_assets_service/mock_service.go -package=mock_my_assets_service
@@ -92,6 +93,8 @@ func (s *service) asyncGetAccount(ctx context.Context) ([]shared.Account, error)
 				req.WalletAddress = s.cfg.AlgoAddress
 			case shared.BitkubChain:
 				req.WalletAddress = s.cfg.BitkubAddress
+			case shared.BSC:
+				req.WalletAddress = s.cfg.BscAddress
 			case shared.ElrondChain:
 				req.WalletAddress = s.cfg.ElrondAddress
 			}

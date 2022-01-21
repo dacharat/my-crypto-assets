@@ -6,6 +6,7 @@ type CoingeckoMapper map[string]string
 const (
 	Algo   Chain = "algo"
 	Bitkub Chain = "bitkub"
+	Bsc    Chain = "bsc"
 	Elrond Chain = "elrond"
 )
 
@@ -21,6 +22,14 @@ var (
 		"KBTC": "bitcoin",
 	}
 
+	BscCoinID = CoingeckoMapper{
+		"BNB":    "binancecoin",
+		"SFM":    "safemoon-2",
+		"Warden": "warden",
+		"Cake":   "pancakeswap-token",
+		"SIX":    "six-network",
+	}
+
 	ElrondCoinID = CoingeckoMapper{
 		"EGLD":       "elrond-erd-2",
 		"DELEG-EGLD": "elrond-erd-2",
@@ -33,6 +42,7 @@ var (
 		Algo:   AlgoCoinID,
 		Bitkub: BitkubCoinID,
 		Elrond: ElrondCoinID,
+		Bsc:    BscCoinID,
 	}
 )
 
