@@ -7,6 +7,7 @@ const (
 	Binance     Platform = "Binance"
 	Bitkub      Platform = "Bitkub"
 	BitkubChain Platform = "BitkubChain"
+	BSC         Platform = "BinanceSmartChain"
 	ElrondChain Platform = "ElrondChain"
 )
 

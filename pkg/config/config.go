@@ -57,6 +57,7 @@ type Binance struct {
 
 type ChainRpc struct {
 	Bitkub string `envconfig:"RPC_BITKUB_CLIENT" default:"https://rpc.bitkubchain.io"`
+	Bsc    string `envconfig:"RPC_BSC_CLIENT" default:"https://bsc-dataseed.binance.org"`
 }
 
 type Elrond struct {
@@ -77,6 +78,7 @@ type Line struct {
 type User struct {
 	AlgoAddress      string `envconfig:"MY_ALGO_ADDRESS" required:"true"`
 	BitkubAddress    string `envconfig:"MY_BITKUB_ADDRESS" required:"true"`
+	BscAddress       string `envconfig:"MY_BSC_ADDRESS" required:"true"`
 	ElrondAddress    string `envconfig:"MY_ELROND_ADDRESS" required:"true"`
 	MaxAssetsDisplay int    `envconfig:"MAX_ASSETS_DISPLAY" default:"3"`
 }
