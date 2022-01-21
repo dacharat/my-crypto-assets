@@ -8,6 +8,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/external/coingecko"
 	"github.com/dacharat/my-crypto-assets/pkg/external/elrond"
 	"github.com/dacharat/my-crypto-assets/pkg/external/line"
+	"github.com/dacharat/my-crypto-assets/pkg/external/web3eth"
 	"github.com/dacharat/my-crypto-assets/pkg/service/algorandservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/binanceservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/bitkubchainservice"
@@ -18,7 +19,6 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/service/platnetwatchservice"
 	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/dacharat/my-crypto-assets/pkg/util/httpclient"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
@@ -36,7 +36,7 @@ func New(cfg *config.Config) App {
 	}
 
 	hc := httpclient.NewClient()
-	conn, _ := ethclient.Dial(cfg.ChainRpc.Bitkub)
+	// conn, _ := ethclient.Dial(cfg.ChainRpc.Bitkub)
 
 	algoApi := algorand.NewAlgolandService(hc, &cfg.AlgorandClient)
 	priceApi := coingecko.NewCoingeckoService(hc, &cfg.Coingecko)
@@ -44,12 +44,13 @@ func New(cfg *config.Config) App {
 	binancApi := binance.NewBinanceService(hc, &cfg.Binance)
 	elrondApi := elrond.NewService(hc, &cfg.Elrond)
 	lineApi := line.NewLineService(client, &cfg.Line)
+	bkChainApi := web3eth.NewService(cfg.ChainRpc.Bitkub)
 
 	assetsServices := []shared.IAssetsService{
 		algorandservice.NewService(algoApi, &cfg.AlgorandClient),
 		bitkubservice.NewService(bitkubApi),
 		binanceservice.NewService(binancApi),
-		bitkubchainservice.NewService(conn),
+		bitkubchainservice.NewService(bkChainApi),
 		elrondservice.NewService(elrondApi),
 	}
 
