@@ -18,26 +18,26 @@ func createMenuContainer() *linebot.BubbleContainer {
 				EndColor:   endBgColor,
 			},
 			Contents: []linebot.FlexComponent{
-				createButtonComponent("All assets", "Assets", "Assets"),
-				createButtonComponent("Planetwatch", "Planetwatch", "Planetwatch"),
+				createButtonComponent("All assets", "Assets"),
+				createButtonComponent("Planetwatch", "Planetwatch"),
 			},
 		},
 	}
 
 	for _, platform := range shared.AvailablePlatform {
-		container.Body.Contents = append(container.Body.Contents, createButtonComponent(string(platform), string(platform), string(platform)))
+		container.Body.Contents = append(container.Body.Contents, createButtonComponent(string(platform), string(platform)))
 	}
 
 	return container
 }
 
-func createButtonComponent(label, data, text string) *linebot.BoxComponent {
+func createButtonComponent(label, text string) *linebot.BoxComponent {
 	return &linebot.BoxComponent{
 		Type:            linebot.FlexComponentTypeBox,
 		Layout:          linebot.FlexBoxLayoutTypeVertical,
 		JustifyContent:  linebot.FlexComponentJustifyContentTypeCenter,
 		BackgroundColor: blueColor,
-		Action:          linebot.NewPostbackAction(label, data, text, ""),
+		Action:          linebot.NewMessageAction(label, text),
 		PaddingAll:      linebot.FlexComponentPaddingTypeSm,
 		Margin:          linebot.FlexComponentMarginTypeMd,
 		CornerRadius:    linebot.FlexComponentCornerRadiusTypeMd,
