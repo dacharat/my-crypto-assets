@@ -133,6 +133,36 @@ func TestHandler(t *testing.T) {
 			require.Equal(ttt, res.Code, http.StatusInternalServerError)
 		})
 
+		tt.Run("should return 500 get menu", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Menu"), nil)
+			mockHandler.mockLineSvc.EXPECT().SendMenuFlexMessage(c.Request.Context(), "reply").Return(errors.New("error"))
+
+			handler.LineCallbackHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusInternalServerError)
+		})
+
+		tt.Run("should return 500 get asset by platform", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Algorand"), nil)
+			mockHandler.mockAssetsSvc.EXPECT().GetAssetByPlatform(gomock.Any(), shared.Algorand).Return(shared.Account{}, errors.New("error"))
+
+			handler.LineCallbackHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusInternalServerError)
+		})
+
 		tt.Run("should return 500 send flex", func(ttt *testing.T) {
 			res, c := testutil.NewDefaultContext()
 
@@ -169,6 +199,23 @@ func TestHandler(t *testing.T) {
 			require.Equal(ttt, res.Code, http.StatusInternalServerError)
 		})
 
+		tt.Run("should return 200 with send asset by platform fail", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			account := shared.Account{}
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Algorand"), nil)
+			mockHandler.mockAssetsSvc.EXPECT().GetAssetByPlatform(gomock.Any(), shared.Algorand).Return(account, nil)
+			mockHandler.mockLineSvc.EXPECT().SendAssetFlexMessage(c.Request.Context(), "reply", account).Return(errors.New("error"))
+
+			handler.LineCallbackHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusInternalServerError)
+		})
+
 		tt.Run("should return 200 with assets", func(ttt *testing.T) {
 			res, c := testutil.NewDefaultContext()
 
@@ -199,6 +246,38 @@ func TestHandler(t *testing.T) {
 			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Planetwatch"), nil)
 			mockHandler.mockPlatnetwatchSvc.EXPECT().GetSummary(gomock.Any()).Return(summary, nil)
 			mockHandler.mockLineSvc.EXPECT().SendPlanetwatchFlexMessage(c.Request.Context(), "reply", summary).Return(nil)
+
+			handler.LineCallbackHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusOK)
+		})
+
+		tt.Run("should return 200 get menu", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Menu"), nil)
+			mockHandler.mockLineSvc.EXPECT().SendMenuFlexMessage(c.Request.Context(), "reply").Return(nil)
+
+			handler.LineCallbackHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusOK)
+		})
+
+		tt.Run("should return 200 get asset by platform", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			account := shared.Account{}
+			mockHandler.mockLineSvc.EXPECT().IsOwner("owner").Return(true)
+			mockHandler.mockLineSvc.EXPECT().ParseRequest(c.Request).Return(createMockEvents("Algorand"), nil)
+			mockHandler.mockAssetsSvc.EXPECT().GetAssetByPlatform(gomock.Any(), shared.Algorand).Return(account, nil)
+			mockHandler.mockLineSvc.EXPECT().SendAssetFlexMessage(c.Request.Context(), "reply", account).Return(nil)
 
 			handler.LineCallbackHandler(c)
 
@@ -248,6 +327,53 @@ func TestHandler(t *testing.T) {
 			mockHandler.mockLineSvc.EXPECT().PushMessage(gomock.Any(), accounts).Return(nil)
 
 			handler.LinePushMessageHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusOK)
+		})
+	})
+
+	t.Run("LinePushMessageByPlatformHandler", func(tt *testing.T) {
+		tt.Run("should return 500 from GetAllAssets error", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			mockHandler.mockAssetsSvc.EXPECT().GetAssetByPlatform(gomock.Any(), gomock.Any()).Return(shared.Account{}, errors.New("error"))
+
+			handler.LinePushMessageByPlatformHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusInternalServerError)
+		})
+
+		tt.Run("should return 500 from GetAllAssets error", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			account := shared.Account{}
+
+			mockHandler.mockAssetsSvc.EXPECT().GetAssetByPlatform(gomock.Any(), gomock.Any()).Return(account, nil)
+			mockHandler.mockLineSvc.EXPECT().PushAssetMessage(gomock.Any(), account).Return(errors.New("error"))
+
+			handler.LinePushMessageByPlatformHandler(c)
+
+			require.Equal(ttt, res.Code, http.StatusInternalServerError)
+		})
+
+		tt.Run("should return 200", func(ttt *testing.T) {
+			res, c := testutil.NewDefaultContext()
+
+			handler, mockHandler, finish := newHandlerTest(ttt)
+			defer finish()
+
+			account := shared.Account{}
+
+			mockHandler.mockAssetsSvc.EXPECT().GetAssetByPlatform(gomock.Any(), gomock.Any()).Return(account, nil)
+			mockHandler.mockLineSvc.EXPECT().PushAssetMessage(gomock.Any(), account).Return(nil)
+
+			handler.LinePushMessageByPlatformHandler(c)
 
 			require.Equal(ttt, res.Code, http.StatusOK)
 		})
