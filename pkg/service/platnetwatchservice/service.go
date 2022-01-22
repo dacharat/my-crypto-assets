@@ -14,7 +14,6 @@ import (
 //go:generate mockgen -source=./service.go -destination=./mock_platnetwatch_service/mock_service.go -package=mock_platnetwatch_service
 type IPlanetwatchService interface {
 	GetSummary(ctx context.Context) (Summary, error)
-	GetIncome(ctx context.Context) ([]*Income, error)
 }
 
 type service struct {
@@ -41,7 +40,7 @@ func (s *service) GetSummary(ctx context.Context) (Summary, error) {
 	)
 
 	go func() {
-		i, err := s.GetIncome(ctx)
+		i, err := s.getIncome(ctx)
 		if err == nil {
 			incomes = i
 		}
@@ -49,7 +48,7 @@ func (s *service) GetSummary(ctx context.Context) (Summary, error) {
 	}()
 
 	go func() {
-		s, err := s.GetLastStreamData(ctx)
+		s, err := s.getLastStreamData(ctx)
 		if err == nil {
 			streams = s
 		}
@@ -70,7 +69,7 @@ func (s *service) GetSummary(ctx context.Context) (Summary, error) {
 	}, err
 }
 
-func (s *service) GetIncome(ctx context.Context) ([]*Income, error) {
+func (s *service) getIncome(ctx context.Context) ([]*Income, error) {
 	txn, err := s.algorandApi.GetTransaction(ctx, s.address, algorand.WithLimit(10), algorand.WithAssetID(27165954), algorand.WithCurrencyGreaterThan(0))
 	if err != nil {
 		return nil, err
@@ -87,7 +86,7 @@ func (s *service) GetIncome(ctx context.Context) ([]*Income, error) {
 	return incomes, nil
 }
 
-func (s *service) GetLastStreamData(ctx context.Context) ([]*StreamData, error) {
+func (s *service) getLastStreamData(ctx context.Context) ([]*StreamData, error) {
 	txn, err := s.algorandApi.GetTransaction(ctx, s.address, algorand.WithLimit(6), algorand.WithAssetID(27165954))
 	if err != nil {
 		return nil, err
