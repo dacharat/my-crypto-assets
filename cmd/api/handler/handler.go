@@ -8,6 +8,7 @@ import (
 	"github.com/dacharat/my-crypto-assets/pkg/service/lineservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/myassetsservice"
 	"github.com/dacharat/my-crypto-assets/pkg/service/platnetwatchservice"
+	"github.com/dacharat/my-crypto-assets/pkg/shared"
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
@@ -73,14 +74,32 @@ func (h Handler) LineCallbackHandler(c *gin.Context) {
 		return
 	}
 
-	switch message.Text {
-	case "Planetwatch":
+	switch true {
+	case message.Text == "Planetwatch":
 		summary, err := h.platnetwatchSvc.GetSummary(ctx)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 			return
 		}
 		err = h.lineSvc.SendPlanetwatchFlexMessage(ctx, token, summary)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
+	case message.Text == "Menu":
+		err = h.lineSvc.SendMenuFlexMessage(ctx, token)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
+	case shared.InAvailablePlatform(shared.Platform(message.Text)):
+		account, err := h.assetsSvc.GetAssetByPlatform(ctx, shared.Platform(message.Text))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
+
+		err = h.lineSvc.SendAssetFlexMessage(c.Request.Context(), token, account)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 			return
@@ -127,6 +146,24 @@ func (h Handler) LinePushMessageHandler(c *gin.Context) {
 	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 	// 	return
 	// }
+
+	c.Status(http.StatusNoContent)
+}
+
+func (h Handler) LinePushMessageByPlatformHandler(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	account, err := h.assetsSvc.GetAssetByPlatform(ctx, shared.Bitkub)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.lineSvc.PushAssetMessage(c.Request.Context(), account)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
 
 	c.Status(http.StatusNoContent)
 }

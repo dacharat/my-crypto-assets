@@ -2,6 +2,7 @@ package lineservice
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/dacharat/my-crypto-assets/pkg/config"
@@ -30,9 +31,14 @@ type ILineService interface {
 	ParseRequest(r *http.Request) ([]*linebot.Event, error)
 	SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error
 	ReplyTextMessage(ctx context.Context, token string, message string) error
+	SendPlanetwatchFlexMessage(ctx context.Context, token string, summary platnetwatchservice.Summary) error
+	SendAssetFlexMessage(ctx context.Context, token string, account shared.Account) error
+	SendMenuFlexMessage(ctx context.Context, token string) error
+
+	// For Development
 	PushMessage(ctx context.Context, accounts []shared.Account) error
 	PushPlanetwatchMessage(ctx context.Context, summary platnetwatchservice.Summary) error
-	SendPlanetwatchFlexMessage(ctx context.Context, token string, summary platnetwatchservice.Summary) error
+	PushAssetMessage(ctx context.Context, account shared.Account) error
 }
 
 type service struct {
@@ -75,4 +81,16 @@ func (s *service) PushPlanetwatchMessage(ctx context.Context, summary platnetwat
 
 func (s *service) SendPlanetwatchFlexMessage(ctx context.Context, token string, summary platnetwatchservice.Summary) error {
 	return s.lineApi.SendFlexMessage(ctx, token, linebot.NewFlexMessage("planetwatch history", createPlanetwatchComponent(summary)))
+}
+
+func (s *service) SendAssetFlexMessage(ctx context.Context, token string, account shared.Account) error {
+	return s.lineApi.SendFlexMessage(ctx, token, linebot.NewFlexMessage(fmt.Sprintf("%s assets", account.Platform), createAssetContainer(account)))
+}
+
+func (s *service) PushAssetMessage(ctx context.Context, account shared.Account) error {
+	return s.lineApi.PushMessage(ctx, createAssetContainer(account))
+}
+
+func (s *service) SendMenuFlexMessage(ctx context.Context, token string) error {
+	return s.lineApi.SendFlexMessage(ctx, token, linebot.NewFlexMessage("Menu", createMenuContainer()))
 }

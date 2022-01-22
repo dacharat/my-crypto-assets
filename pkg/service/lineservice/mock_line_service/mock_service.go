@@ -67,6 +67,20 @@ func (mr *MockILineServiceMockRecorder) ParseRequest(r interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseRequest", reflect.TypeOf((*MockILineService)(nil).ParseRequest), r)
 }
 
+// PushAssetMessage mocks base method.
+func (m *MockILineService) PushAssetMessage(ctx context.Context, account shared.Account) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PushAssetMessage", ctx, account)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PushAssetMessage indicates an expected call of PushAssetMessage.
+func (mr *MockILineServiceMockRecorder) PushAssetMessage(ctx, account interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PushAssetMessage", reflect.TypeOf((*MockILineService)(nil).PushAssetMessage), ctx, account)
+}
+
 // PushMessage mocks base method.
 func (m *MockILineService) PushMessage(ctx context.Context, accounts []shared.Account) error {
 	m.ctrl.T.Helper()
@@ -109,6 +123,20 @@ func (mr *MockILineServiceMockRecorder) ReplyTextMessage(ctx, token, message int
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplyTextMessage", reflect.TypeOf((*MockILineService)(nil).ReplyTextMessage), ctx, token, message)
 }
 
+// SendAssetFlexMessage mocks base method.
+func (m *MockILineService) SendAssetFlexMessage(ctx context.Context, token string, account shared.Account) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendAssetFlexMessage", ctx, token, account)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendAssetFlexMessage indicates an expected call of SendAssetFlexMessage.
+func (mr *MockILineServiceMockRecorder) SendAssetFlexMessage(ctx, token, account interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendAssetFlexMessage", reflect.TypeOf((*MockILineService)(nil).SendAssetFlexMessage), ctx, token, account)
+}
+
 // SendFlexMessage mocks base method.
 func (m *MockILineService) SendFlexMessage(ctx context.Context, token string, accounts []shared.Account) error {
 	m.ctrl.T.Helper()
@@ -121,6 +149,20 @@ func (m *MockILineService) SendFlexMessage(ctx context.Context, token string, ac
 func (mr *MockILineServiceMockRecorder) SendFlexMessage(ctx, token, accounts interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendFlexMessage", reflect.TypeOf((*MockILineService)(nil).SendFlexMessage), ctx, token, accounts)
+}
+
+// SendMenuFlexMessage mocks base method.
+func (m *MockILineService) SendMenuFlexMessage(ctx context.Context, token string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendMenuFlexMessage", ctx, token)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendMenuFlexMessage indicates an expected call of SendMenuFlexMessage.
+func (mr *MockILineServiceMockRecorder) SendMenuFlexMessage(ctx, token interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendMenuFlexMessage", reflect.TypeOf((*MockILineService)(nil).SendMenuFlexMessage), ctx, token)
 }
 
 // SendPlanetwatchFlexMessage mocks base method.

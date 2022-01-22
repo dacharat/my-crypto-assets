@@ -158,6 +158,78 @@ func TestService(t *testing.T) {
 			require.NoError(ttt, err)
 		})
 	})
+
+	t.Run("PushAssetMessage", func(tt *testing.T) {
+		tt.Run("should return error line send flex", func(ttt *testing.T) {
+			ctx := context.Background()
+			svc, mockSvc, finish := newBitkubTestSvc(ttt)
+			defer finish()
+
+			mockSvc.mockLine.EXPECT().PushMessage(ctx, gomock.Any()).Return(errors.New("error"))
+
+			err := svc.PushAssetMessage(ctx, createMockAccounts()[0])
+			require.Error(ttt, err)
+		})
+
+		tt.Run("should send flex success", func(ttt *testing.T) {
+			ctx := context.Background()
+			svc, mockSvc, finish := newBitkubTestSvc(ttt)
+			defer finish()
+
+			mockSvc.mockLine.EXPECT().PushMessage(ctx, gomock.Any())
+
+			err := svc.PushAssetMessage(ctx, createMockAccounts()[0])
+			require.NoError(ttt, err)
+		})
+	})
+
+	t.Run("SendAssetFlexMessage", func(tt *testing.T) {
+		tt.Run("should return error line send flex", func(ttt *testing.T) {
+			ctx := context.Background()
+			svc, mockSvc, finish := newBitkubTestSvc(ttt)
+			defer finish()
+
+			mockSvc.mockLine.EXPECT().SendFlexMessage(ctx, "", gomock.Any()).Return(errors.New("error"))
+
+			err := svc.SendAssetFlexMessage(ctx, "", createMockAccounts()[0])
+			require.Error(ttt, err)
+		})
+
+		tt.Run("should send flex success", func(ttt *testing.T) {
+			ctx := context.Background()
+			svc, mockSvc, finish := newBitkubTestSvc(ttt)
+			defer finish()
+
+			mockSvc.mockLine.EXPECT().SendFlexMessage(ctx, "", gomock.Any())
+
+			err := svc.SendAssetFlexMessage(ctx, "", createMockAccounts()[0])
+			require.NoError(ttt, err)
+		})
+	})
+
+	t.Run("SendMenuFlexMessage", func(tt *testing.T) {
+		tt.Run("should return error line send flex", func(ttt *testing.T) {
+			ctx := context.Background()
+			svc, mockSvc, finish := newBitkubTestSvc(ttt)
+			defer finish()
+
+			mockSvc.mockLine.EXPECT().SendFlexMessage(ctx, "", gomock.Any()).Return(errors.New("error"))
+
+			err := svc.SendMenuFlexMessage(ctx, "")
+			require.Error(ttt, err)
+		})
+
+		tt.Run("should send flex success", func(ttt *testing.T) {
+			ctx := context.Background()
+			svc, mockSvc, finish := newBitkubTestSvc(ttt)
+			defer finish()
+
+			mockSvc.mockLine.EXPECT().SendFlexMessage(ctx, "", gomock.Any())
+
+			err := svc.SendMenuFlexMessage(ctx, "")
+			require.NoError(ttt, err)
+		})
+	})
 }
 
 type lineServiceMock struct {
@@ -211,7 +283,7 @@ func createMockAccounts() []shared.Account {
 				ID:     100,
 				Amount: 1,
 				Name:   "name4",
-				Price:  1,
+				Price:  0.005,
 			},
 		},
 	}}

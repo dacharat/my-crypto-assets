@@ -11,6 +11,8 @@ const (
 	ElrondChain Platform = "ElrondChain"
 )
 
+var AvailablePlatform = []Platform{Algorand, Binance, Bitkub, BitkubChain, BSC, ElrondChain}
+
 type Platform string
 
 type Account struct {
@@ -51,4 +53,14 @@ func (a Assets) Sort() Assets {
 	})
 
 	return a
+}
+
+func InAvailablePlatform(platfrom Platform) bool {
+	for _, p := range AvailablePlatform {
+		if p == platfrom {
+			return true
+		}
+	}
+
+	return false
 }

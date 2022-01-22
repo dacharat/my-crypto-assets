@@ -21,9 +21,12 @@ func NewRouter(app app.App) *gin.Engine {
 		c.Status(http.StatusNoContent)
 	})
 
-	route.GET("/test", mid.DevMode(), h.GetAccountBalanceHandler)
 	route.POST("/linebot", h.LineCallbackHandler)
+
+	// For Development or use ngrok
+	route.GET("/test", mid.DevMode(), h.GetAccountBalanceHandler)
 	route.GET("/push", mid.DevMode(), h.LinePushMessageHandler)
+	route.GET("/push-platform", mid.DevMode(), h.LinePushMessageByPlatformHandler)
 
 	return route
 }

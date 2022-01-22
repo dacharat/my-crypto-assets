@@ -80,6 +80,11 @@ func createAccountComponent(account shared.Account, maxAsset int) *linebot.BoxCo
 	}
 
 	for i := 0; i < line; i++ {
+		// hide price less than $0.01
+		if account.Assets[i].Price < 0.01 {
+			continue
+		}
+
 		box.Contents = append(box.Contents, createAssetComponent(account.Assets[i]))
 	}
 	if !allAssets {
