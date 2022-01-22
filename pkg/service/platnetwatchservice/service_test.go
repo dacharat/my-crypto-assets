@@ -15,7 +15,7 @@ import (
 
 func TestService(t *testing.T) {
 	ctx := context.Background()
-	t.Run("GetIncome", func(tt *testing.T) {
+	t.Run("GetSummary", func(tt *testing.T) {
 		tt.Run("get income error", func(ttt *testing.T) {
 			svc, mockSvc, finish := newPlanetwatchTestSvc(ttt)
 			defer finish()
@@ -24,9 +24,10 @@ func TestService(t *testing.T) {
 			mockSvc.mockAlgoApi.
 				EXPECT().
 				GetTransaction(ctx, "123", gomock.Any()).
-				Return(algorand.AccountTransactionResponse{}, errors.New("error"))
+				Return(algorand.AccountTransactionResponse{}, errors.New("error")).
+				Times(2)
 
-			_, err := svc.GetIncome(ctx)
+			_, err := svc.GetSummary(ctx)
 			require.Error(ttt, err)
 		})
 
@@ -37,9 +38,10 @@ func TestService(t *testing.T) {
 			mockSvc.mockAlgoApi.
 				EXPECT().
 				GetTransaction(ctx, "123", gomock.Any()).
-				Return(createMockAccountTransaction(), nil)
+				Return(createMockAccountTransaction(), nil).
+				Times(2)
 
-			_, err := svc.GetIncome(ctx)
+			_, err := svc.GetSummary(ctx)
 			require.NoError(ttt, err)
 		})
 	})

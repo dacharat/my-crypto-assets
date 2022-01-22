@@ -35,21 +35,6 @@ func (m *MockIPlanetwatchService) EXPECT() *MockIPlanetwatchServiceMockRecorder 
 	return m.recorder
 }
 
-// GetIncome mocks base method.
-func (m *MockIPlanetwatchService) GetIncome(ctx context.Context) ([]*platnetwatchservice.Income, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetIncome", ctx)
-	ret0, _ := ret[0].([]*platnetwatchservice.Income)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetIncome indicates an expected call of GetIncome.
-func (mr *MockIPlanetwatchServiceMockRecorder) GetIncome(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIncome", reflect.TypeOf((*MockIPlanetwatchService)(nil).GetIncome), ctx)
-}
-
 // GetSummary mocks base method.
 func (m *MockIPlanetwatchService) GetSummary(ctx context.Context) (platnetwatchservice.Summary, error) {
 	m.ctrl.T.Helper()

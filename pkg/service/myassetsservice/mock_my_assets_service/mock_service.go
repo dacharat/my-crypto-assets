@@ -49,3 +49,18 @@ func (mr *MockIMyAssetsServiceMockRecorder) GetAllAssets(ctx interface{}) *gomoc
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllAssets", reflect.TypeOf((*MockIMyAssetsService)(nil).GetAllAssets), ctx)
 }
+
+// GetAssetByPlatform mocks base method.
+func (m *MockIMyAssetsService) GetAssetByPlatform(ctx context.Context, platform shared.Platform) (shared.Account, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAssetByPlatform", ctx, platform)
+	ret0, _ := ret[0].(shared.Account)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAssetByPlatform indicates an expected call of GetAssetByPlatform.
+func (mr *MockIMyAssetsServiceMockRecorder) GetAssetByPlatform(ctx, platform interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAssetByPlatform", reflect.TypeOf((*MockIMyAssetsService)(nil).GetAssetByPlatform), ctx, platform)
+}
