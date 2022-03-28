@@ -48,4 +48,24 @@ func TestNumber(t *testing.T) {
 			require.Equal(ttt, n, 0.0)
 		})
 	})
+
+	t.Run("LargeStringToFloat", func(tt *testing.T) {
+		tt.Run("should return 5000", func(ttt *testing.T) {
+			n := number.LargeStringToFloat("5000000000000000000000", 18)
+
+			require.Equal(ttt, n, 5000.0)
+		})
+
+		tt.Run("should return 0", func(ttt *testing.T) {
+			n := number.LargeStringToFloat("0", 18)
+
+			require.Equal(ttt, n, 0.0)
+		})
+
+		tt.Run("should return 0 with string contain decimal", func(ttt *testing.T) {
+			n := number.LargeStringToFloat("0.0", 18)
+
+			require.Equal(ttt, n, 0.0)
+		})
+	})
 }

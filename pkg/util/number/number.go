@@ -15,3 +15,13 @@ func BigIntToFloat(amount *big.Int, decimal int) float64 {
 
 	return f64
 }
+
+func LargeStringToFloat(amount string, decimal int) float64 {
+	b := new(big.Int)
+	bFloat, ok := b.SetString(amount, 10)
+	if !ok {
+		return 0
+	}
+
+	return BigIntToFloat(bFloat, decimal)
+}

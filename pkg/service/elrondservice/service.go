@@ -100,10 +100,9 @@ func mapAccountToAsset(account elrond.GetAccountResponse) *shared.Asset {
 func mapTokensToAsset(tokens []elrond.GetAccountTokenResponse) shared.Assets {
 	assets := make(shared.Assets, len(tokens))
 	for i, token := range tokens {
-		balance, _ := strconv.ParseInt(token.Balance, 10, 64)
 		assets[i] = &shared.Asset{
 			Name:   token.Ticker,
-			Amount: number.BigIntToFloat(big.NewInt(balance), token.Decimals),
+			Amount: number.LargeStringToFloat(token.Balance, token.Decimals),
 		}
 	}
 
