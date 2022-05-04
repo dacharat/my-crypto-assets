@@ -36,6 +36,7 @@ var (
 		"RIDE":       "holoride",
 		"USDC":       "usd-coin",
 		"MEX":        "maiar-dex",
+		"ITHEUM":     "itheum",
 	}
 
 	chain = map[Chain]CoingeckoMapper{
